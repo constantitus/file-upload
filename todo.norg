@@ -1,0 +1,43 @@
+* Notes
+* Todo
+  - (x) sha256 pass checking
+  - (x) login form
+  - (x) upload form
+  - (x) set cookies
+  - (x) response messages
+  - (x) write files
+  -- (x) handle overwrite
+  - (?) decide and handle files location
+  - (-) logout button
+
+** account stuff ?
+   - (_) email maybe ?
+   - (-) database ?
+   - ( ) sanitize usernames
+         Aa-Zz 0-9
+** ( ) USER CONTROL PANEL
+   - ( ) template
+   - ( ) buttons to open/close
+   - ( ) list files
+   -- ( ) option to delete files
+   - ( ) option to change password ?
+
+*** Admin access in panel
+    - ( ) modify users from db
+    - ( ) change passwords ?
+          change password hashes ??
+    - ( ) modify files from users storage
+
+  ** 
+  - (!) Logging
+
+  - ( ) log who uploaded/deleted which files
+        also ip and client data
+
+** Finishing touches
+   - ( ) add css 
+   - ( ) rate limit
+   - ( ) database of users
+         maybe sqlite cause it's lightweight
+   - ( ) organize code
+* 

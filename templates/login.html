@@ -1,0 +1,18 @@
+<form
+    id="form"
+    hx-encoding="multipart/form-data"
+    hx-post="/login/"
+    hx-target="#main-form"
+>
+    <h1>Login</h1>
+    <input type="text" placeholder="Username" name="username" class="field" value="{{.Username}}" />
+    <p><input type="password" placeholder="Password" name="password" class="field" value="{{.Password}}" />
+    <div class="check-box">
+        <input type="checkbox" name="remember" id="remember" class="checkbox" {{if .Remember}}checked{{end}} />
+        <label for="remember" >Remember me</label>
+    </div>
+    <button>
+        Login
+    </button>
+</form>
+<p>{{.Message}}
