@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -15,31 +14,29 @@ import (
 const DefaultTTL = time.Hour * 2
 const RememberTTL = time.Hour * 24
 
-var UUID struct {
-    Gen *uuid.Gen
-    Id *ttlcache.Cache[string, string]
-    Admin *ttlcache.Cache[string, bool]
+type UserData struct {
+    User string
+    Rank bool
 }
 
-func init() {
-    UUID.Gen = uuid.NewGen()
+var gen *uuid.Gen
+var UUID *ttlcache.Cache[string, UserData]
 
-    UUID.Id = ttlcache.New[string, string]()
-    UUID.Admin = ttlcache.New[string, bool]()
-    go UUID.Id.Start()
-    go UUID.Admin.Start()
+func init() {
+    gen = uuid.NewGen()
+
+    UUID = ttlcache.New[string, UserData]()
+    go UUID.Start()
 }
 
 func setUser(form *LoginForm) *http.Cookie {
-    id := UUID.Gen.NewV4().String()
+    id := gen.NewV4().String()
     var expires time.Time
     if form.Remember {
-        UUID.Id.Set(id, form.Username, RememberTTL)
-        UUID.Admin.Set(form.Username, form.admin, RememberTTL)
+        UUID.Set(id, UserData{form.Username, form.admin}, RememberTTL)
         expires = time.Now().Add(RememberTTL)
     } else {
-        UUID.Id.Set(id, form.Username, DefaultTTL)
-        UUID.Admin.Set(form.Username, form.admin, DefaultTTL)
+        UUID.Set(id, UserData{form.Username, form.admin}, DefaultTTL)
         expires = time.Now().Add(DefaultTTL)
     }
 
@@ -78,10 +75,10 @@ func FromCookie(r *http.Request) (user string) {
         return
     }
 
-    get := UUID.Id.Get(uuidString)
+    get := UUID.Get(uuidString)
     if get != nil {
-        fmt.Println(get)
-        return get.Value()
+        // fmt.Println(get)
+        return get.Value().User
     }
     return
 }

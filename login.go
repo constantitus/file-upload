@@ -26,6 +26,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
             Expires: time.Now(),
         }
         http.SetCookie(w, cookie)
+        Tmpl.login.Execute(w, nil)
+        return
     }
 
     var fields LoginForm
