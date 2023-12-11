@@ -5,8 +5,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"time"
-	"github.com/jellydator/ttlcache/v3"
 )
 
 var Tmpl struct {
@@ -18,26 +16,20 @@ var Tmpl struct {
 
 func MainHandler(w http.ResponseWriter, r *http.Request) {
     Tmpl.header.Execute(w, nil)
-    if CheckCookies(r) {
-        Tmpl.upload.Execute(w, nil)
+    if user := FromCookie(r); user != "" {
+        Tmpl.upload.Execute(w, UploadForm{User: user})
     } else {
         Tmpl.login.Execute(w, nil)
     }
     Tmpl.footer.Execute(w, nil)
 }
 
-var cache *ttlcache.Cache[string, string]
 
 func init() {
     Tmpl.header = template.Must(template.ParseFiles("templates/header.html"))
     Tmpl.footer = template.Must(template.ParseFiles("templates/footer.html"))
     Tmpl.login = template.Must(template.ParseFiles("templates/login.html"))
     Tmpl.upload = template.Must(template.ParseFiles("templates/upload.html"))
-
-    cache = ttlcache.New[string, string](
-        ttlcache.WithTTL[string, string](30 * time.Minute),
-    )
-    go cache.Start()
 }
 
 func main() {

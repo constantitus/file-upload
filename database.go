@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -26,12 +25,12 @@ func init() {
 }
 
 
-func CheckUserDB(username string, admin ...*bool) (pass string) {
+func QueryDB(username string) (hash string, admin bool) {
     rows, _ := database.Query(
         "SELECT password, rank FROM users WHERE username = ?", username)
 
     if rows.Next() {
-        rows.Scan(&pass, admin)
+        rows.Scan(&hash, &admin)
     }
     return
 }

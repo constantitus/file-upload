@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"os"
 )
@@ -13,6 +14,7 @@ type File struct {
 }
 
 type UploadForm struct {
+    User string
     Message []string
     Overwrite bool
 }
@@ -21,8 +23,8 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
         return
     }
-    // check creds
-    if !CheckCookies(r) {
+
+    if user := FromCookie(r); user == "" {
         Tmpl.login.Execute(w, LoginForm{Message: "Invalid Credentials"})
         return
     }
@@ -33,9 +35,14 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // handle files
+    handleFiles(&form, r.MultipartForm.File["file"])
+
+}
+
+func handleFiles(form *UploadForm, headers []*multipart.FileHeader) {
+    // Parse files
     var files []File
-    fileHeaders := r.MultipartForm.File["file"]
-    for _, f := range fileHeaders {
+    for _, f := range headers {
         file, err := f.Open()
         if err != nil {
             fmt.Println(err.Error())
@@ -53,7 +60,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
         })
     }
 
-    // handle writing
+    // Write files
     for _, file := range files {
         var msg string
         if file.name == "" {
@@ -74,21 +81,18 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
         if exists {
             if form.Overwrite {
                 msg += "over" // overwritten
-                msg += Write(&file, *out)
+                msg += writeFile(&file, *out)
             } else {
                 msg += "File already exists: " + file.name
             }
         } else {
-            msg += Write(&file, *out)
+            msg += writeFile(&file, *out)
         }
         form.Message = append(form.Message, msg)
     }
-
-    // TODO: Parse <p>'s in form.Message
-    Tmpl.upload.Execute(w, form)
 }
 
-func Write(file *File, out os.File) string {
+func writeFile(file *File, out os.File) string {
     out_size, err := out.Write(*file.content)
     if err != nil {
         return err.Error()
@@ -96,39 +100,3 @@ func Write(file *File, out os.File) string {
         return fmt.Sprintf("written %s (%d bytes)", file.name, out_size)
     }
 }
-
-
-/* func UploadHandlerOld(w http.ResponseWriter, r *http.Request) {
-    reader, err := r.MultipartReader()
-    if err != nil {
-        fmt.Println("Error: ", err.Error())
-        return
-    }
-
-    form, err := reader.ReadForm(1000 << 20)
-    if err != nil {
-        fmt.Println("Error: ", err.Error())
-        return
-    }
-
-    var files []File
-    for _, headers := range form.File {
-        for _, header := range headers {
-            file, err := header.Open()
-            if err != nil {
-                fmt.Println("Error: ", err.Error())
-                continue
-            }
-            defer file.Close()
-
-            buf := bytes.NewBuffer(nil)
-            _, err = io.Copy(buf, file)
-            if err != nil {
-                fmt.Println("Error: ", err.Error())
-                return
-            }
-
-            //files = append(files, File{header.Filename, &buf.Bytes()})
-        }
-    }
-} */

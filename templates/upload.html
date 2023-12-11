@@ -4,7 +4,7 @@
     hx-post="/upload/"
     hx-target="#main-form"
 >
-    <h1>File Upload</h1>
+    <h1>Welcome, {{.User}}!</h1>
     <input type="file" name="file" multiple="multiple">
     <p><div class="check-box">
         <input type="checkbox" name="overwrite" id="overwrite" class="checkbox" {{if .Overwrite}}checked {{end}}/>

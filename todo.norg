@@ -7,14 +7,31 @@
   - (x) response messages
   - (x) write files
   -- (x) handle overwrite
-  - (?) decide and handle files location
-  - (-) logout button
+  - (x) logout button
+
+  - ( ) filesystem watcher for the database
+
+** ( ) settings file ?
+   - ( ) toml(?) parser for settings
+   - ( ) database file, port number
+   - ( ) TTL time (default and remember me)
+   - ( ) Storage location
 
 ** account stuff ?
    - (_) email maybe ?
-   - (-) database ?
-   - ( ) sanitize usernames
-         Aa-Zz 0-9
+   - ( ) sanitize usernames (Aa-Zz 0-9)
+   -- currently no way to add users
+   - (x) database ?
+   - In-memory cache with automatic deletion upon expiration
+   - Login checks against database and generates a UUID for the user
+   - UUID is stored in a cookie and in the server's in-memory cache
+     which points to the username
+     username is also cached and it points to a bool which
+     indicates whether the user is an admin
+   - Upon every request, the server only checks the cache.
+     The database is only accessed at login
+   - ( ) remember REMEMBER ME for updating the cache ?
+   - ( ) single cache - map string to struct
 ** ( ) USER CONTROL PANEL
    - ( ) template
    - ( ) buttons to open/close
@@ -27,9 +44,14 @@
     - ( ) change passwords ?
           change password hashes ??
     - ( ) modify files from users storage
+** Storage
+   - ( ) decide and handle files location
+   - ( ) limit users storage space
+   - ( ) know the size before upload
+
 
   ** 
-  - (!) Logging
+  - (!) proper error logging
 
   - ( ) log who uploaded/deleted which files
         also ip and client data
@@ -37,7 +59,7 @@
 ** Finishing touches
    - ( ) add css 
    - ( ) rate limit
-   - ( ) database of users
+   - (x) database of users
          maybe sqlite cause it's lightweight
    - ( ) organize code
 * 
