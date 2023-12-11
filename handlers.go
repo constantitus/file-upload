@@ -13,6 +13,20 @@ var Tmpl struct {
     upload *template.Template
 }
 
+type LoginForm struct {
+    Username string
+    Password string
+    Remember bool
+    Message string
+    admin bool
+}
+
+type UploadForm struct {
+    User string
+    Message []string
+    Overwrite bool
+}
+
 func init() {
     Tmpl.header = template.Must(template.ParseFiles("templates/header.html"))
     Tmpl.footer = template.Must(template.ParseFiles("templates/footer.html"))
@@ -28,14 +42,6 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
         Tmpl.login.Execute(w, nil)
     }
     Tmpl.footer.Execute(w, nil)
-}
-
-type LoginForm struct {
-    Username string
-    Password string
-    Remember bool
-    Message string
-    admin bool
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,19 +82,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
     Tmpl.login.Execute(w, fields)
 }
 
-type UploadForm struct {
-    User string
-    Message []string
-    Overwrite bool
-}
-
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
         return
     }
 
     if user := FromCookie(r); user == "" {
-        Tmpl.login.Execute(w, LoginForm{Message: "Invalid Credentials"})
+        Tmpl.login.Execute(w, LoginForm{Message: "Login Expired"})
         return
     }
 
@@ -99,5 +99,4 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
     // handle files
     HandleFiles(&form, r.MultipartForm.File["file"])
-
 }

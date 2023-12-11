@@ -11,13 +11,12 @@ import (
 	"nullprogram.com/x/uuid"
 )
 
-var DefaultTTL = time.Hour * time.Duration(Conf.Default_ttl)
-var RememberTTL = time.Hour * time.Duration(Conf.Rememberme_ttl)
+// var DefaultTTL = time.Duration(Conf.Default_ttl) * time.Hour
+// var RememberTTL = time.Duration(Conf.Rememberme_ttl) * time.Hour
 
 type UserData struct {
     User string
     Rank bool
-    Remember bool
 }
 
 var gen *uuid.Gen
@@ -30,27 +29,6 @@ func init() {
     go UUID.Start()
 }
 
-func setUser(form *LoginForm) *http.Cookie {
-    id := gen.NewV4().String()
-    var expires time.Time
-    if form.Remember {
-        UUID.Set(id, UserData{form.Username, form.admin, true}, RememberTTL)
-        expires = time.Now().Add(RememberTTL)
-    } else {
-        UUID.Set(id, UserData{form.Username, form.admin, false}, DefaultTTL)
-        expires = time.Now().Add(DefaultTTL)
-    }
-
-    cookie := http.Cookie{
-        Name: "uuid",
-        Value: id,
-        Expires: expires,
-        Path: "/",
-    }
-
-    return &cookie
-}
-
 func CheckCredentials(form *LoginForm, w *http.ResponseWriter) (valid bool) {
     var hash string
     hash, form.admin = QueryDB(form.Username)
@@ -60,9 +38,8 @@ func CheckCredentials(form *LoginForm, w *http.ResponseWriter) (valid bool) {
         http.SetCookie(*w, setUser(form))
         return true
     }
-
     // clear the cookie
-    http.SetCookie(*w, &http.Cookie{Name: "uuid", Path: "/"})
+    http.SetCookie(*w, &http.Cookie{Name: "uuid", Path: "/", Expires: time.Now()})
     return false
 }
 
@@ -80,5 +57,29 @@ func FromCookie(r *http.Request) (user string) {
     if get != nil {
         return get.Value().User
     }
+    return
+}
+
+func setUser(form *LoginForm) (cookie *http.Cookie) {
+    id := gen.NewV4().String()
+    var expires time.Time
+    if form.Remember {
+        UUID.Set(id, UserData{form.Username, form.admin},
+            time.Duration(Conf.Rememberme_ttl) * time.Hour)
+        expires = time.Now().Add(time.Duration(Conf.Rememberme_ttl) * time.Hour)
+    } else {
+        UUID.Set(id, UserData{form.Username, form.admin},
+            time.Duration(Conf.Default_ttl) * time.Hour)
+        expires = time.Now().Add(time.Duration(Conf.Default_ttl) * time.Hour)
+    }
+    
+
+    cookie = &http.Cookie{
+        Name: "uuid",
+        Value: id,
+        Expires: expires,
+        Path: "/",
+    }
+
     return
 }
