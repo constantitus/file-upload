@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 var Tmpl struct {
@@ -24,12 +25,12 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
     Tmpl.footer.Execute(w, nil)
 }
 
-
 func init() {
     Tmpl.header = template.Must(template.ParseFiles("templates/header.html"))
     Tmpl.footer = template.Must(template.ParseFiles("templates/footer.html"))
     Tmpl.login = template.Must(template.ParseFiles("templates/login.html"))
     Tmpl.upload = template.Must(template.ParseFiles("templates/upload.html"))
+
 }
 
 func main() {
@@ -38,11 +39,13 @@ func main() {
     http.HandleFunc("/upload/", UploadHandler)
     http.HandleFunc("/login/", LoginHandler)
     server := http.Server{
-        Addr:         ":8080",
+        Addr:         ":" + strconv.Itoa(Conf.Port),
         Handler:      nil,
         // ReadTimeout:  10000,
         // WriteTimeout: 10000,
     }
+
+
 
     log.Fatal(server.ListenAndServe())
 }

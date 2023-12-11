@@ -68,7 +68,7 @@ func handleFiles(form *UploadForm, headers []*multipart.FileHeader) {
             continue
         }
         out, err := os.OpenFile(
-            file.name, // TODO: handle directories
+            Conf.Storage_path + "/" + file.name,
             os.O_RDWR|os.O_CREATE,
             0644)
         defer out.Close()

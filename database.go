@@ -2,25 +2,24 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const DBfile = "./database.db"
-
-var (
-    database *sql.DB
-)
+var database *sql.DB
 
 func init() {
     var err error
-    database, err = sql.Open("sqlite3", DBfile)
+    database, err = sql.Open("sqlite3", Conf.Database_path)
     if err != nil {
-        fmt.Println(err.Error())
-        return
+        log.Panic(err)
     }
-    statement, _ := database.Prepare(
+    statement, err := database.Prepare(
         "CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT, rank INTEGER DEFAULT 0)")
+    if err != nil {
+        log.Panic(err)
+    }
     statement.Exec()
 }
 

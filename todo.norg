@@ -9,7 +9,8 @@
   -- (x) handle overwrite
   - (x) logout button
 
-  - ( ) filesystem watcher for the database
+  - (_) filesystem watcher for the database
+        not needed
 
 ** ( ) settings file ?
    - ( ) toml(?) parser for settings
@@ -49,8 +50,7 @@
    - ( ) limit users storage space
    - ( ) know the size before upload
 
-
-  ** 
+** Logs 
   - (!) proper error logging
 
   - ( ) log who uploaded/deleted which files

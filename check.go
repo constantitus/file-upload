@@ -11,8 +11,8 @@ import (
 	"nullprogram.com/x/uuid"
 )
 
-const DefaultTTL = time.Hour * 2
-const RememberTTL = time.Hour * 24
+var DefaultTTL = time.Hour * time.Duration(Conf.Default_ttl)
+var RememberTTL = time.Hour * time.Duration(Conf.Rememberme_ttl)
 
 type UserData struct {
     User string
@@ -50,7 +50,7 @@ func setUser(form *LoginForm) *http.Cookie {
     return &cookie
 }
 
-func CheckCredentials(form *LoginForm, w *http.ResponseWriter) bool {
+func CheckCredentials(form *LoginForm, w *http.ResponseWriter) (valid bool) {
     var hash string
     hash, form.admin = QueryDB(form.Username)
     tmp := sha256.New()
@@ -77,7 +77,6 @@ func FromCookie(r *http.Request) (user string) {
 
     get := UUID.Get(uuidString)
     if get != nil {
-        // fmt.Println(get)
         return get.Value().User
     }
     return

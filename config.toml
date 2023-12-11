@@ -1,0 +1,6 @@
+port = 8080
+css = "style.css"
+database_path = "database.db"
+storage_path = ""
+default_ttl = 2
+rememberme_ttl = 24
