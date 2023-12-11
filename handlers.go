@@ -99,4 +99,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
     // handle files
     HandleFiles(&form, r.MultipartForm.File["file"])
+
+    Tmpl.upload.Execute(w, form)
 }

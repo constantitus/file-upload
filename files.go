@@ -33,9 +33,10 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
         })
     }
 
+    // THIS DOESN T HAPPEN
     // Write files
+    var msg string
     for _, file := range files {
-        var msg string
         if file.name == "" {
             msg += "No file selected"
             continue
@@ -61,8 +62,8 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
         } else {
             msg += writeFile(&file, *out)
         }
-        form.Message = append(form.Message, msg)
     }
+    form.Message = append(form.Message, msg)
 }
 
 func writeFile(file *File, out os.File) string {

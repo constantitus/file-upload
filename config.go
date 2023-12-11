@@ -22,7 +22,7 @@ func init() {
     Conf = Config{
         8080,
         "./database.db",
-        "",
+        "./",
         2,
         24,
     }
@@ -30,4 +30,5 @@ func init() {
     if err != nil {
         log.Println(err)
     }
+    if Conf.Storage_path == "" { Conf.Storage_path = "./" }
 }
