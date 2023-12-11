@@ -17,6 +17,7 @@ var RememberTTL = time.Hour * time.Duration(Conf.Rememberme_ttl)
 type UserData struct {
     User string
     Rank bool
+    Remember bool
 }
 
 var gen *uuid.Gen
@@ -33,10 +34,10 @@ func setUser(form *LoginForm) *http.Cookie {
     id := gen.NewV4().String()
     var expires time.Time
     if form.Remember {
-        UUID.Set(id, UserData{form.Username, form.admin}, RememberTTL)
+        UUID.Set(id, UserData{form.Username, form.admin, true}, RememberTTL)
         expires = time.Now().Add(RememberTTL)
     } else {
-        UUID.Set(id, UserData{form.Username, form.admin}, DefaultTTL)
+        UUID.Set(id, UserData{form.Username, form.admin, false}, DefaultTTL)
         expires = time.Now().Add(DefaultTTL)
     }
 

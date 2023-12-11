@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
-	"net/http"
 	"os"
 )
 
@@ -13,33 +12,7 @@ type File struct {
     content *[]byte
 }
 
-type UploadForm struct {
-    User string
-    Message []string
-    Overwrite bool
-}
-
-func UploadHandler(w http.ResponseWriter, r *http.Request) {
-    if r.Header.Get("HX-Request") != "true" {
-        return
-    }
-
-    if user := FromCookie(r); user == "" {
-        Tmpl.login.Execute(w, LoginForm{Message: "Invalid Credentials"})
-        return
-    }
-
-    var form UploadForm
-    if r.PostFormValue("overwrite") == "on" {
-        form.Overwrite = true
-    }
-
-    // handle files
-    handleFiles(&form, r.MultipartForm.File["file"])
-
-}
-
-func handleFiles(form *UploadForm, headers []*multipart.FileHeader) {
+func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
     // Parse files
     var files []File
     for _, f := range headers {
