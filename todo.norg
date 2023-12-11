@@ -8,6 +8,8 @@
   - (x) write files
   -- (x) handle overwrite
   - (x) logout button
+  - (!) Going into UploadForm no longer keeps the username for display.
+        this might be an issue 
 
 ** (x) settings file ?
    - (x) toml(?) parser for settings

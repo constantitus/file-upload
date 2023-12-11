@@ -102,3 +102,5 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
     Tmpl.upload.Execute(w, form)
 }
+
+// TODO: CPanel handler
