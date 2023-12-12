@@ -7,26 +7,32 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jellydator/ttlcache/v3"
+    "github.com/go-pkgz/expirable-cache/v2"
 	"nullprogram.com/x/uuid"
 )
 
-// var DefaultTTL = time.Duration(Conf.Default_ttl) * time.Hour
-// var RememberTTL = time.Duration(Conf.Rememberme_ttl) * time.Hour
-
 type UserData struct {
-    User string
+    Name string
     Rank bool
 }
 
 var gen *uuid.Gen
-var UUID *ttlcache.Cache[string, UserData]
+
+var UUID cache.Cache[string, UserData]
+var Limited cache.Cache[string, bool]
 
 func init() {
     gen = uuid.NewGen()
 
-    UUID = ttlcache.New[string, UserData]()
-    go UUID.Start()
+    UUID = cache.NewCache[string, UserData]()
+    Limited = cache.NewCache[string, bool]()
+    go func() {
+        for {
+            time.Sleep(time.Minute * 1)
+            UUID.DeleteExpired()
+            Limited.DeleteExpired()
+        }
+    }()
 }
 
 func CheckCredentials(form *LoginForm, w *http.ResponseWriter) (valid bool) {
@@ -43,7 +49,7 @@ func CheckCredentials(form *LoginForm, w *http.ResponseWriter) (valid bool) {
     return false
 }
 
-func FromCookie(r *http.Request) (user string) {
+func FromCookie(r *http.Request) (user UserData) {
     uuidCookie, err := r.Cookie("uuid")
     if err != nil {
         return
@@ -53,9 +59,9 @@ func FromCookie(r *http.Request) (user string) {
         return
     }
 
-    get := UUID.Get(uuidString)
-    if get != nil {
-        return get.Value().User
+    value, got := UUID.Get(uuidString)
+    if got {
+        return value
     }
     return
 }
@@ -65,12 +71,12 @@ func setUser(form *LoginForm) (cookie *http.Cookie) {
     var expires time.Time
     if form.Remember {
         UUID.Set(id, UserData{form.Username, form.admin},
-            time.Duration(Conf.Rememberme_ttl) * time.Hour)
-        expires = time.Now().Add(time.Duration(Conf.Rememberme_ttl) * time.Hour)
+            time.Duration(Conf.UUID_long_ttl) * time.Hour)
+        expires = time.Now().Add(time.Duration(Conf.UUID_long_ttl) * time.Hour)
     } else {
         UUID.Set(id, UserData{form.Username, form.admin},
-            time.Duration(Conf.Default_ttl) * time.Hour)
-        expires = time.Now().Add(time.Duration(Conf.Default_ttl) * time.Hour)
+            time.Duration(Conf.UUID_def_ttl) * time.Hour)
+        expires = time.Now().Add(time.Duration(Conf.UUID_def_ttl) * time.Hour)
     }
     
 

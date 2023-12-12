@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"os"
 )
@@ -18,13 +19,14 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
     for _, f := range headers {
         file, err := f.Open()
         if err != nil {
-            fmt.Println(err.Error())
+            log.Println(err.Error())
             continue
         }
         defer file.Close()
         buf, err := io.ReadAll(file)
         if err != nil {
-            form.Message = append(form.Message, err.Error())
+            form.Messages = append(form.Messages, err.Error())
+            continue
         }
 
         files = append(files, File{
@@ -33,12 +35,11 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
         })
     }
 
-    // THIS DOESN T HAPPEN
     // Write files
-    var msg string
     for _, file := range files {
+        var msg string
         if file.name == "" {
-            msg += "No file selected"
+            form.Messages = append(form.Messages, "No file selected")
             continue
         }
         out, err := os.OpenFile(
@@ -47,7 +48,7 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
             0644)
         defer out.Close()
         if err != nil {
-            msg += err.Error()
+            form.Messages = append(form.Messages, err.Error())
             continue
         }
         out_stat, _ := out.Stat()
@@ -62,8 +63,8 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
         } else {
             msg += writeFile(&file, *out)
         }
+        form.Messages = append(form.Messages, msg)
     }
-    form.Message = append(form.Message, msg)
 }
 
 func writeFile(file *File, out os.File) string {

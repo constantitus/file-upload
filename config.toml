@@ -1,6 +1,8 @@
 port = 8080
 css = "style.css"
-database_path = "database.db"
 storage_path = ""
-default_ttl = 2
-rememberme_ttl = 24
+database_path = "database.db"
+uuid_def_ttl = 2
+uuid_long_ttl = 48
+login_ttl = 5
+rate_limit = 2

@@ -10,6 +10,8 @@ require (
 )
 
 require (
+	github.com/go-pkgz/expirable-cache/v2 v2.0.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/time v0.5.0 // indirect
 	nullprogram.com/x/isaac64 v1.0.0 // indirect
 )

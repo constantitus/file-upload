@@ -9,7 +9,7 @@ import (
 
 var database *sql.DB
 
-func init() {
+func InitDB() {
     var err error
     database, err = sql.Open("sqlite3", Conf.Database_path)
     if err != nil {
@@ -22,7 +22,6 @@ func init() {
     }
     statement.Exec()
 }
-
 
 func QueryDB(username string) (hash string, admin bool) {
     rows, _ := database.Query(

@@ -11,26 +11,25 @@
   - (!) Going into UploadForm no longer keeps the username for display.
         this might be an issue 
 
+  - (x) Split /upload/ into more templates,
+        only update the messages
+  - If the login is ajax, the user can accidentally
+    spam login and get rate limited.
+  -- (=) refreshing the page would might be better
+  - (x) rate limit login
+  - (x) rate limit the whole server
+
+  - ( ) reorganize handlers Form code
+
 ** (x) settings file ?
-   - (x) toml(?) parser for settings
-   - (x) database file, port number
-   - (x) TTL time (default and remember me)
-   - (x) Storage location
+   - ( ) rate limit cooldown
 
 ** account stuff ?
    - (_) email maybe ?
    - (_) sanitize usernames (Aa-Zz 0-9)
    -- currently no way to add users
    - (x) database ?
-   - In-memory cache with automatic deletion upon expiration
-   - Login checks against database and generates a UUID for the user
-   - UUID is stored in a cookie and in the server's in-memory cache
-     which points to the username
-     username is also cached and it points to a bool which
-     indicates whether the user is an admin
-   - Upon every request, the server only checks the cache.
-     The database is only accessed at login
-   - ( ) remember REMEMBER ME for updating the cache ?
+   - ( ) remember REMEMBER ME for updating the cache and the cookie ?
    - (x) single cache - map string to struct
 ** ( ) USER CONTROL PANEL
    - ( ) template
@@ -38,16 +37,16 @@
    - ( ) list files
    -- ( ) option to delete files
    - ( ) option to change password ?
+** Storage
+   - ( ) each user gets their space
+   - ( ) limit users storage space
+   - ( ) know the size before upload
 
 *** Admin access in panel
     - ( ) modify users from db
     - ( ) change passwords ?
           change password hashes ??
     - ( ) modify files from users storage
-** Storage
-   - (x) decide and handle files location
-   - ( ) limit users storage space
-   - ( ) know the size before upload
 
 ** Logs 
   - (!) proper error logging
@@ -57,7 +56,6 @@
 
 ** Finishing touches
    - ( ) add css 
-   - ( ) rate limit
    - (x) database of users
          maybe sqlite cause it's lightweight
    - ( ) organize code

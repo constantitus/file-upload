@@ -6,44 +6,35 @@ import (
 	"time"
 )
 
-var Tmpl struct {
-    header *template.Template
-    footer *template.Template
-    login *template.Template
-    upload *template.Template
-}
-
 type LoginForm struct {
     Username string
     Password string
     Remember bool
-    Message string
     admin bool
 }
 
 type UploadForm struct {
     User string
-    Message []string
+    Messages []string
     Overwrite bool
 }
 
+var tmpl *template.Template
+
 func init() {
-    Tmpl.header = template.Must(template.ParseFiles("templates/header.html"))
-    Tmpl.footer = template.Must(template.ParseFiles("templates/footer.html"))
-    Tmpl.login = template.Must(template.ParseFiles("templates/login.html"))
-    Tmpl.upload = template.Must(template.ParseFiles("templates/upload.html"))
+    tmpl = template.Must(template.ParseFiles(
+        "templates/index.html",
+        "templates/login.html",
+        "templates/upload.html",
+        ))
 }
 
+// The root of the website
 func MainHandler(w http.ResponseWriter, r *http.Request) {
-    Tmpl.header.Execute(w, nil)
-    if user := FromCookie(r); user != "" {
-        Tmpl.upload.Execute(w, UploadForm{User: user})
-    } else {
-        Tmpl.login.Execute(w, nil)
-    }
-    Tmpl.footer.Execute(w, nil)
+    tmpl.ExecuteTemplate(w, "base", struct{Logged bool}{FromCookie(r).Name != ""})
 }
 
+// /login/
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
         return
@@ -57,38 +48,66 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
             Expires: time.Now(),
         }
         http.SetCookie(w, cookie)
-        Tmpl.login.Execute(w, nil)
+        tmpl.ExecuteTemplate(w, "login", nil)
         return
     }
 
-    var fields LoginForm
-    fields.Username = r.PostFormValue("username")
-    fields.Password = r.PostFormValue("password")
+    var form LoginForm
+    form.Username = r.PostFormValue("username")
+    form.Password = r.PostFormValue("password")
     if r.PostFormValue("remember") == "on" {
-        fields.Remember = true
+        form.Remember = true
     }
 
     // check credentials
-    if fields.Username == "" {
-        Tmpl.login.Execute(w, LoginForm{Remember: fields.Remember})
+    if form.Username == "" {
+        //tmpl.ExecuteTemplate(w, "login", nil)
         return
     }
 
-    if CheckCredentials(&fields, &w) {
-        Tmpl.upload.Execute(w, UploadForm{User: fields.Username})
+    ip := getClientIP(r)
+    if _, got := Limited.Get(ip); got {
+        w.Write([]byte("<p>Please wait before trying again"))
         return
     }
+    // TODO: countdown ?
 
-    Tmpl.login.Execute(w, fields)
+    if CheckCredentials(&form, &w) {
+        // TODO Maybe pass username ?
+        w.Header().Set("HX-Retarget", "#main-form")
+        tmpl.ExecuteTemplate(w, "upload", nil)
+        return
+    } else {
+        Limited.Set(ip, true, time.Duration(Conf.Login_ttl))
+    }
+
+    w.Write([]byte("<p>Invalid Username/Password"))
+    //tmpl.ExecuteTemplate(w, "login", fields)
 }
 
+func getClientIP(r *http.Request) (ip string) {
+    ip = r.Header.Get("X-Real-Ip")
+    if ip == "" {
+        ip = r.Header.Get("X-Forwarded-For")
+    }
+    if ip == "" {
+        ip = r.RemoteAddr
+    }
+    return
+}
+
+// /upload/
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
         return
     }
 
-    if user := FromCookie(r); user == "" {
-        Tmpl.login.Execute(w, LoginForm{Message: "Login Expired"})
+    if user := FromCookie(r); user.Name == "" {
+        // TODO: execute main with HX-Boost and message
+        w.Header().Set("HX-Retarget", "#main-form")
+        tmpl.ExecuteTemplate(w, "login", nil)
+        w.Header().Set("HX-Retarget", "#messages")
+        w.Write([]byte("<p>Login Expired"))
         return
     }
 
@@ -98,9 +117,26 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // handle files
-    HandleFiles(&form, r.MultipartForm.File["file"])
+    if files := r.MultipartForm.File["file"]; files != nil {
+        HandleFiles(&form, files)
+    } else {
+        form.Messages = append(form.Messages, "No file chosen")
+    }
 
-    Tmpl.upload.Execute(w, form)
+    for _, msg := range form.Messages {
+        w.Write([]byte("<p>" + msg))
+    }
+    //Tmpl.upload.Execute(w, form)
 }
 
 // TODO: CPanel handler
+func MenuHandler(w http.ResponseWriter, r *http.Request) {
+    if r.Header.Get("HX-Request") != "true" {
+        return
+    }
+
+    user := FromCookie(r)
+    if user.Name == "" {
+        return
+    }
+}
