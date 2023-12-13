@@ -15,9 +15,9 @@ func main() {
     InitDB() // run after the config has been parsed
     log.Println("Server running...")
     mux := http.NewServeMux()
-    mux.Handle("/",        RateLimit(MainHandler))
-    mux.Handle("/upload/", RateLimit(UploadHandler))
-    mux.Handle("/login/",  RateLimit(LoginHandler))
+    mux.Handle("/",         RateLimit(MainHandler))
+    mux.Handle("/upload/",  RateLimit(UploadHandler))
+    mux.Handle("/login/",   RateLimit(LoginHandler))
     server := http.Server{
         Addr:         ":" + strconv.Itoa(Conf.Port),
         Handler:      mux,

@@ -1,0 +1,133 @@
+/* This is simple style I wrote to test the login and upload page. */
+
+body {
+    background:  linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("https://mahi.ro/img?mode=2") no-repeat center top fixed;
+    background-size: cover;
+    font-family: FiraCode, 'Courier New', monospace;
+    text-align: justify;
+    word-break: break-word;
+    color: rgb(232, 234, 237);
+    padding: 0;
+    margin: 0;
+}
+
+html, body {
+    color-scheme: transparent !important;
+    background-color: transparent !important;
+}
+
+p, b, a {
+    margin-top: 1px;
+    margin-bottom: 1px;
+    margin: 1px;
+}
+
+a, a:hover, a:visited, a:active {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.box {
+    width: 400px;
+    height: 400px;
+    position: absolute;
+    top: calc(50vh - 200px);
+    left: calc(50vw - 200px);
+    overflow: hidden;
+    border: 1px solid;
+    border-style: solid;
+    border-radius: 0.4rem;
+    backdrop-filter: blur(6px);
+    background-image: linear-gradient(to right bottom, rgba(10, 10, 10, 0.2), rgba(10, 10, 10, 0.3));
+}
+
+.box h1, p {
+    text-align: center;
+}
+
+.box .field, .form {
+    display: block;
+    width: 300px;
+    margin: 20px auto;
+    padding: 15px;
+    background: rgba(0,0,0,0.2);
+    color: #fff;
+    border: 0;
+    border-radius: 0.4rem;
+}
+
+.box input:focus,.box input:active,.box button:focus,.box button:active{
+    outline: none;
+}
+
+.box .button {
+    background: #742ECC;
+    border: 0;
+    color: #fff;
+    padding: 10px;
+    font-size: 20px;
+    width: 330px;
+    margin: 20px auto;
+    margin-bottom: 5px;
+    display: block;
+    cursor: pointer;
+    border-radius: 0.4rem;
+}
+
+.box .small-button {
+    color: #fff;
+    font-size: 18px;
+    background: none;
+    border: none;
+    margin-left: 32px;
+}
+
+.check-box {
+    text-align: center;
+    font-size: 1.1em;
+    color: #2b2b2b;
+}
+.check-box label {
+    display: block;
+    width: unset;
+    margin: 0;
+    color: #fff;
+}
+.check-box input {  display: none; }
+
+.check-box label::before {
+    padding: 0;
+    content: "\2714";
+    font-weight: bold;
+    font-size: 0.75em;
+    height: 1em;
+    width: 1em;
+    border: 0.05em solid #000;
+    border-radius: 0.2em;
+    display: inline-block;
+    margin-right: 0.3em;
+    color: transparent;
+    transition: .1s;
+    border-color: #fff;
+}
+.check-box label:active::before {
+    transform: scale(0.8);
+    border-color: #fff;
+}
+.check-box [type=checkbox]:checked + label:before {
+    background-color: #742ECC;
+    border-color: #742ECC;
+    color: #fff;
+}
+.check-box [type=checkbox]:disabled + label:before {
+    transform: scale(1);
+    border-color: #aaa;
+}
+
+.check-box [type=checkbox]:checked:disabled + label:before {
+    transform: scale(1);
+    background-color: #9487d1;
+    border-color: #742ECC;
+}
+

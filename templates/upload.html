@@ -6,19 +6,32 @@
     hx-target="#messages"
 >
     <h1>File upload</h1>
-    <input type="file" name="file" multiple="multiple">
-    <p><div class="check-box">
+    <input type="file" name="file" multiple="multiple" class="form">
+    <p /><div class="check-box">
         <input type="checkbox" name="overwrite" id="overwrite" class="checkbox" />
         <label for="overwrite">Overwrite</label>
     </div>
-    <button>
+    <button class="button">
         Upload File
     </button>
+    <div id="update-progress">
+        {{template "progress" .}}
+    </div>
 </form>
 <button
-    name="logout" id="logout" value="true"
+    name="logout" id="logout" class="small-button"
+    value="true"
     hx-post="/login/"
     hx-target="#main-form"
 >Log out</button>
 <div class="message-box" id="messages" class="messages"></div>
+{{end}}
+
+{{define "progress"}}
+<p /><progress id="progress" value="0" max="100"></progress>
+<script>
+htmx.on('#form', 'htmx:xhr:progress', function(evt) {
+    htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
+});
+</script>
 {{end}}

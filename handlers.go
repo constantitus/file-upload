@@ -31,7 +31,14 @@ func init() {
 
 // The root of the website
 func MainHandler(w http.ResponseWriter, r *http.Request) {
-    tmpl.ExecuteTemplate(w, "base", struct{Logged bool}{FromCookie(r).Name != ""})
+    args := struct{
+        Logged bool
+    }{
+        FromCookie(r).Name != "",
+    }
+    w.Write([]byte(Style))
+    tmpl.ExecuteTemplate(w, "base", args)
+
 }
 
 // /login/
@@ -123,10 +130,10 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
         form.Messages = append(form.Messages, "No file chosen")
     }
 
+    // w.Header().Set("HX-Retarget", "#messages")
     for _, msg := range form.Messages {
         w.Write([]byte("<p>" + msg))
     }
-    //Tmpl.upload.Execute(w, form)
 }
 
 // TODO: CPanel handler

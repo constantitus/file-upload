@@ -5,11 +5,12 @@
         <script src="https://unpkg.com/htmx.org@1.9.9"></script>
     </head>
     <body>
-        <h1>MAHIRO MY WIFE</h1>
-        <div class="box" id="main-form">
-            {{if .Logged}}{{template "upload" .}}{{else}}{{template "login" .}}{{end}}
-        </div>
-        <div class="message-box" id="messages">
+        <div class="box">
+            <div id="main-form">
+                {{if .Logged}}{{template "upload" .}}{{else}}{{template "login" .}}{{end}}
+            </div>
+            <div class="message-box" id="messages">
+            </div>
         </div>
     </body>
 </html>
