@@ -9,9 +9,10 @@ import (
 
 var database *sql.DB
 
+// Initialize the database
 func InitDB() {
     var err error
-    database, err = sql.Open("sqlite3", Conf.DatabasePath)
+    database, err = sql.Open("sqlite3", Config.DatabasePath)
     if err != nil {
         log.Panic(err)
     }
@@ -23,6 +24,7 @@ func InitDB() {
     statement.Exec()
 }
 
+// Query the database for username
 func QueryDB(username string) (hash string, admin bool) {
     rows, _ := database.Query(
         "SELECT password, rank FROM users WHERE username = ?", username)

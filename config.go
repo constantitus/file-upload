@@ -14,7 +14,7 @@ import (
 const ConfigFile = "config.toml"
 
 var(
-    Conf = struct{
+    Config = struct{
         StoragePath string
         DatabasePath string
         CSS string
@@ -47,6 +47,7 @@ func init() {
     ParseConfig()
 }
 
+// Parse the config toml file and update the Config struct
 func ParseConfig() {
     settings := struct {
         Storage_path string
@@ -68,23 +69,23 @@ func ParseConfig() {
     }
 
     if settings.Storage_path == "" {
-        Conf.StoragePath = "./" 
+        Config.StoragePath = "./" 
     } else {
-        Conf.StoragePath = settings.Storage_path
+        Config.StoragePath = settings.Storage_path
     }
-    Conf.DatabasePath = settings.Database_path
-    Conf.CSS = settings.CSS
-    Conf.UuidDefTTL = parseTime(settings.UUID_def_ttl)
-    Conf.UuidLongTTL = parseTime(settings.UUID_long_ttl)
-    Conf.LoginCooldown = parseTime(settings.Login_cooldown)
-    Conf.LoginAttempts = settings.Login_attempts
-    Conf.Rate = rate.Limit(settings.Rate)
-    Conf.RateBursts = settings.Rate_bursts
-    Conf.RateCooldown = parseTime(settings.Rate_cooldown)
-    Conf.FilesizeMax = parseSize(settings.Filesize_max)
+    Config.DatabasePath = settings.Database_path
+    Config.CSS = settings.CSS
+    Config.UuidDefTTL = parseTime(settings.UUID_def_ttl)
+    Config.UuidLongTTL = parseTime(settings.UUID_long_ttl)
+    Config.LoginCooldown = parseTime(settings.Login_cooldown)
+    Config.LoginAttempts = settings.Login_attempts
+    Config.Rate = rate.Limit(settings.Rate)
+    Config.RateBursts = settings.Rate_bursts
+    Config.RateCooldown = parseTime(settings.Rate_cooldown)
+    Config.FilesizeMax = parseSize(settings.Filesize_max)
 
     Style = []byte("<style>")
-    css, _ := os.ReadFile(Conf.CSS)
+    css, _ := os.ReadFile(Config.CSS)
     Style = append(Style, css...)
     Style = append(Style, []byte("</style>")...)
 }

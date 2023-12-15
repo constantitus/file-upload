@@ -71,11 +71,12 @@ func RateLimit(next func(writer http.ResponseWriter, request *http.Request)) htt
 
         RateLimiter.mu.Lock()
         if _, found := RateLimiter.clients[ip]; !found {
-            RateLimiter.clients[ip] = &client{limiter: rate.NewLimiter(Conf.Rate, Conf.RateBursts)}
+            RateLimiter.clients[ip] = &client{
+                limiter: rate.NewLimiter(Config.Rate, Config.RateBursts)}
         }
         RateLimiter.clients[ip].lastSeen = time.Now()
         if !RateLimiter.clients[ip].limiter.Allow() {
-            time.Sleep(Conf.RateCooldown)
+            time.Sleep(Config.RateCooldown)
         }
         RateLimiter.mu.Unlock()
         next(w, r)
@@ -99,13 +100,14 @@ func CheckLimit(ip string) bool {
     logLimiter.mu.Lock()
     client, found := logLimiter.clients[ip]
     if !found {
-        logLimiter.clients[ip] = &logClient{lastSeen: time.Now(), attempts: 0}
+        logLimiter.clients[ip] = &logClient{
+            lastSeen: time.Now(), attempts: 0}
         logLimiter.mu.Unlock()
         return true
     }
-    if time.Since(client.lastSeen) < Conf.LoginCooldown {
+    if time.Since(client.lastSeen) < Config.LoginCooldown {
         client.attempts += 1
-        if client.attempts >= Conf.LoginAttempts {
+        if client.attempts >= Config.LoginAttempts {
             logLimiter.mu.Unlock()
             return false
         }

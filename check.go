@@ -32,20 +32,7 @@ func init() {
     }()
 }
 
-func CheckCredentials(form *LoginForm, w *http.ResponseWriter) (valid bool) {
-    var hash string
-    hash, form.admin = QueryDB(form.Username)
-    tmp := sha256.New()
-    tmp.Write([]byte(form.Password))
-    if hash == hex.EncodeToString(tmp.Sum(nil)) {
-        http.SetCookie(*w, setUser(form))
-        return true
-    }
-    // clear the cookie
-    http.SetCookie(*w, &http.Cookie{Name: "uuid", Path: "/", Expires: time.Now()})
-    return false
-}
-
+// Checks the UUID from the cookie against the memory cache
 func FromCookie(r *http.Request) (user UserData) {
     uuidCookie, err := r.Cookie("uuid")
     if err != nil {
@@ -63,17 +50,34 @@ func FromCookie(r *http.Request) (user UserData) {
     return
 }
 
+// Checks the credentials against the database. If valid, it generates a UUID
+// which it saves in the memory cache and in a cookie.
+func CheckCredentials(form *LoginForm, w *http.ResponseWriter) (valid bool) {
+    var hash string
+    hash, form.admin = QueryDB(form.Username)
+    tmp := sha256.New()
+    tmp.Write([]byte(form.Password))
+    if hash == hex.EncodeToString(tmp.Sum(nil)) {
+        http.SetCookie(*w, setUser(form))
+        return true
+    }
+    // clear the cookie
+    http.SetCookie(*w,
+        &http.Cookie{Name: "uuid", Path: "/", Expires: time.Now()})
+    return false
+}
+
 func setUser(form *LoginForm) (cookie *http.Cookie) {
     id := gen.NewV4().String()
     var expires time.Time
     if form.Remember {
         UUID.Set(id, UserData{form.Username, form.admin},
-            Conf.UuidLongTTL * time.Hour)
-        expires = time.Now().Add(Conf.UuidLongTTL * time.Hour)
+            Config.UuidLongTTL * time.Hour)
+        expires = time.Now().Add(Config.UuidLongTTL * time.Hour)
     } else {
         UUID.Set(id, UserData{form.Username, form.admin},
-            Conf.UuidDefTTL * time.Hour)
-        expires = time.Now().Add(Conf.UuidDefTTL * time.Hour)
+            Config.UuidDefTTL * time.Hour)
+        expires = time.Now().Add(Config.UuidDefTTL * time.Hour)
     }
     
 
