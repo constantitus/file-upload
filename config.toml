@@ -1,8 +1,18 @@
-port = 8080
-css = "style.css"
+# duration can be a string suffixed by "h", "m" or "s" or an int for seconds
+# example: "1h", "60m", "3600s" or just 3600
+# 0 or "unlimited" works
+# example: "1gb", "1000mb", "1000000kb", "1000000000b" or just 1000000000
+# Capital letter in the suffix are supported
+# Floats are not supported
+
 storage_path = ""
 database_path = "database.db"
-uuid_def_ttl = 2
-uuid_long_ttl = 48
-login_ttl = 5
-rate_limit = 2
+css = "style.css"
+uuid_def_ttl = "2h"
+uuid_long_ttl = "48h"
+login_cooldown = "30s"
+login_attempts = 5
+rate = 2 # float
+rate_bursts = 4
+rate_cooldown = "1s"
+filesize_max = "5GB"

@@ -19,18 +19,18 @@ type UserData struct {
 var gen *uuid.Gen
 
 var UUID cache.Cache[string, UserData]
-var Limited cache.Cache[string, bool]
+// var Limited cache.Cache[string, bool]
 
 func init() {
     gen = uuid.NewGen()
 
     UUID = cache.NewCache[string, UserData]()
-    Limited = cache.NewCache[string, bool]()
+    // Limited = cache.NewCache[string, bool]()
     go func() {
         for {
             time.Sleep(time.Minute * 1)
             UUID.DeleteExpired()
-            Limited.DeleteExpired()
+            // Limited.DeleteExpired()
         }
     }()
 }
@@ -71,12 +71,12 @@ func setUser(form *LoginForm) (cookie *http.Cookie) {
     var expires time.Time
     if form.Remember {
         UUID.Set(id, UserData{form.Username, form.admin},
-            time.Duration(Conf.UUID_long_ttl) * time.Hour)
-        expires = time.Now().Add(time.Duration(Conf.UUID_long_ttl) * time.Hour)
+            Conf.UuidLongTTL * time.Hour)
+        expires = time.Now().Add(Conf.UuidLongTTL * time.Hour)
     } else {
         UUID.Set(id, UserData{form.Username, form.admin},
-            time.Duration(Conf.UUID_def_ttl) * time.Hour)
-        expires = time.Now().Add(time.Duration(Conf.UUID_def_ttl) * time.Hour)
+            Conf.UuidDefTTL * time.Hour)
+        expires = time.Now().Add(Conf.UuidDefTTL * time.Hour)
     }
     
 

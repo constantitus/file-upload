@@ -17,14 +17,15 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
     // Parse files
     var files []File
     for _, f := range headers {
+        // TODO: limit f.Size()
         file, err := f.Open()
         if err != nil {
-            log.Println(err.Error())
+            log.Println("Upload error:", err.Error())
             continue
         }
         defer file.Close()
 
-        // Modified version of io.ReadAll()
+        /* // This is from io.ReadAll()
         var read int64
         buf := make([]byte, 0, 512)
         for {
@@ -37,11 +38,11 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
                 buf = append(buf, 0)[:len(buf)]
             }
             read = read + int64(size)
-        }
-
+        } */
+        buf, err := io.ReadAll(file)
         if err != nil {
             form.Messages = append(form.Messages, err.Error())
-            continue
+            break
         }
 
         files = append(files, File{
@@ -58,7 +59,7 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
             continue
         }
         out, err := os.OpenFile(
-            Conf.Storage_path + "/" + file.name,
+            Conf.StoragePath + "/" + form.User + "/" + file.name,
             os.O_RDWR|os.O_CREATE,
             0644)
         defer out.Close()
@@ -66,7 +67,10 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
             form.Messages = append(form.Messages, err.Error())
             continue
         }
-        out_stat, _ := out.Stat()
+        out_stat, err := out.Stat()
+        if err != nil {
+            log.Println("our.Stat()", err)
+        }
         exists := out_stat.Size() != 0
         if exists {
             if form.Overwrite {

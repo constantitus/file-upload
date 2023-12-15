@@ -6,19 +6,6 @@ import (
 	"time"
 )
 
-type LoginForm struct {
-    Username string
-    Password string
-    Remember bool
-    admin bool
-}
-
-type UploadForm struct {
-    User string
-    Messages []string
-    Overwrite bool
-}
-
 var tmpl *template.Template
 
 func init() {
@@ -41,6 +28,13 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+
+type LoginForm struct {
+    Username string
+    Password string
+    Remember bool
+    admin bool
+}
 // /login/
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
@@ -68,28 +62,25 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
     // check credentials
     if form.Username == "" {
-        //tmpl.ExecuteTemplate(w, "login", nil)
         return
     }
 
     ip := getClientIP(r)
-    if _, got := Limited.Get(ip); got {
+
+    if !CheckLimit(ip) {
         w.Write([]byte("<p>Please wait before trying again"))
         return
-    }
-    // TODO: countdown ?
-
-    if CheckCredentials(&form, &w) {
-        // TODO Maybe pass username ?
-        w.Header().Set("HX-Retarget", "#main-form")
-        tmpl.ExecuteTemplate(w, "upload", nil)
-        return
     } else {
-        Limited.Set(ip, true, time.Duration(Conf.Login_ttl))
+        if CheckCredentials(&form, &w) {
+            // TODO Maybe pass username ?
+            w.Header().Set("HX-Retarget", "#main-form")
+            tmpl.ExecuteTemplate(w, "upload", nil)
+            return
+        } else {
+            w.Write([]byte("<p>Invalid Username/Password"))
+            return
+        }
     }
-
-    w.Write([]byte("<p>Invalid Username/Password"))
-    //tmpl.ExecuteTemplate(w, "login", fields)
 }
 
 func getClientIP(r *http.Request) (ip string) {
@@ -103,6 +94,12 @@ func getClientIP(r *http.Request) (ip string) {
     return
 }
 
+
+type UploadForm struct {
+    User string
+    Messages []string
+    Overwrite bool
+}
 // /upload/
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
@@ -110,11 +107,8 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     if user := FromCookie(r); user.Name == "" {
-        // TODO: execute main with HX-Boost and message
         w.Header().Set("HX-Retarget", "#main-form")
         tmpl.ExecuteTemplate(w, "login", nil)
-        w.Header().Set("HX-Retarget", "#messages")
-        w.Write([]byte("<p>Login Expired"))
         return
     }
 
