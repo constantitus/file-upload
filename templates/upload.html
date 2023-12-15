@@ -28,10 +28,14 @@
 {{end}}
 
 {{define "progress"}}
-<p /><progress id="progress" value="0" max="100"></progress>
+<p /><progress id="progress" value="0" max="100" style="visibility:hidden"></progress>
 <script>
-htmx.on('#form', 'htmx:xhr:progress', function(evt) {
-    htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
+htmx.on("#main-form", "htmx:xhr:progress", function(evt) {
+    htmx.find("#progress").style.visibility = "visible";
+    htmx.find("#progress").setAttribute("value", evt.detail.loaded/evt.detail.total * 100);
+});
+htmx.on("#main-form", "htmx:xhr:loadend", function(evt) {
+    htmx.find("#progress").style.visibility = "hidden";
 });
 </script>
 {{end}}
