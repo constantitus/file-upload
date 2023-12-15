@@ -7,7 +7,7 @@
 
 storage_path = ""
 database_path = "database.db"
-css = "style.css"
+css = "templates/style.css"
 uuid_def_ttl = "2h"
 uuid_long_ttl = "48h"
 login_cooldown = "30s"
