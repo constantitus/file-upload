@@ -1,19 +1,12 @@
-/* This is simple style I wrote to test the login and upload page. */
+/* This is simple stylesheet I wrote to test this specific app */
 
 body {
-    background:  linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("https://mahi.ro/img?mode=2") no-repeat center top fixed;
-    background-size: cover;
-    font-family: FiraCode, 'Courier New', monospace;
     text-align: justify;
     word-break: break-word;
     color: rgb(232, 234, 237);
     padding: 0;
     margin: 0;
-}
-
-html, body {
-    color-scheme: transparent !important;
-    background-color: transparent !important;
+    background-image: linear-gradient(to right bottom, rgb(30, 30, 30), rgb(20, 20, 20));
 }
 
 p, b, a {
@@ -38,8 +31,12 @@ a, a:hover, a:visited, a:active {
     border: 1px solid;
     border-style: solid;
     border-radius: 0.4rem;
+    color: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(6px);
-    background-image: linear-gradient(to right bottom, rgba(10, 10, 10, 0.2), rgba(10, 10, 10, 0.3));
+    background-image: linear-gradient(to right bottom,
+        rgba(10, 10, 10, 0.2),
+        rgba(10, 10, 10, 0.3)
+        );
 }
 
 .box h1, p {
@@ -54,7 +51,6 @@ a, a:hover, a:visited, a:active {
     background: rgba(0,0,0,0.2);
     color: #fff;
     border: 0;
-    border-radius: 0.4rem;
 }
 
 .box input:focus,.box input:active,.box button:focus,.box button:active{
@@ -72,7 +68,6 @@ a, a:hover, a:visited, a:active {
     margin-bottom: 5px;
     display: block;
     cursor: pointer;
-    border-radius: 0.4rem;
 }
 
 .box .small-button {
@@ -139,6 +134,7 @@ a, a:hover, a:visited, a:active {
     border-radius: 4px;
     box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
 }
+
 .progress-bar {
     float: left;
     width: 0%;
