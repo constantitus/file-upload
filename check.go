@@ -19,18 +19,15 @@ type UserData struct {
 var gen *uuid.Gen
 
 var UUID cache.Cache[string, UserData]
-// var Limited cache.Cache[string, bool]
 
 func init() {
     gen = uuid.NewGen()
 
     UUID = cache.NewCache[string, UserData]()
-    // Limited = cache.NewCache[string, bool]()
     go func() {
         for {
             time.Sleep(time.Minute * 1)
             UUID.DeleteExpired()
-            // Limited.DeleteExpired()
         }
     }()
 }

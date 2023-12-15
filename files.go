@@ -25,20 +25,6 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
         }
         defer file.Close()
 
-        /* // This is from io.ReadAll()
-        var read int64
-        buf := make([]byte, 0, 512)
-        for {
-            size, err := file.Read(buf[len(buf):cap(buf)])
-            buf = buf[:len(buf)+size]
-            if err == io.EOF {
-                break
-            }
-            if len(buf) == cap(buf) {
-                buf = append(buf, 0)[:len(buf)]
-            }
-            read = read + int64(size)
-        } */
         buf, err := io.ReadAll(file)
         if err != nil {
             form.Messages = append(form.Messages, err.Error())
