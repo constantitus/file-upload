@@ -6,7 +6,7 @@
     </head>
     <body>
         <div class="box">
-            <div id="main-form">
+            <div id="main-form" class="small-box">
                 {{if .Logged}}{{template "upload" .}}{{else}}{{template "login" .}}{{end}}
             </div>
         </div>

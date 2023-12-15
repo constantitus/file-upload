@@ -49,6 +49,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
             Expires: time.Now(),
         }
         http.SetCookie(w, cookie)
+        w.Header().Set("HX-Retarget", "#main-form")
+        w.Header().Set("HX-Swap", "outerHTML")
         tmpl.ExecuteTemplate(w, "login", nil)
         return
     }
@@ -73,6 +75,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
     } else {
         if CheckCredentials(&form, &w) {
             // TODO Maybe pass username ?
+            w.Header().Set("HX-Swap", "outerHTML")
             w.Header().Set("HX-Retarget", "#main-form")
             tmpl.ExecuteTemplate(w, "upload", nil)
             return
@@ -107,6 +110,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     if user := FromCookie(r); user.Name == "" {
+        w.Header().Set("HX-Swap", "outerHTML")
         w.Header().Set("HX-Retarget", "#main-form")
         tmpl.ExecuteTemplate(w, "login", nil)
         return

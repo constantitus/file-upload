@@ -22,8 +22,6 @@ a, a:hover, a:visited, a:active {
 }
 
 .box {
-    width: 400px;
-    height: 400px;
     position: absolute;
     top: calc(50vh - 200px);
     left: calc(50vw - 200px);
@@ -37,6 +35,11 @@ a, a:hover, a:visited, a:active {
         rgba(10, 10, 10, 0.2),
         rgba(10, 10, 10, 0.3)
         );
+}
+
+.small-box {
+    width: 400px;
+    height: 400px;
 }
 
 .box h1, p {
