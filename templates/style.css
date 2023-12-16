@@ -21,10 +21,18 @@ a, a:hover, a:visited, a:active {
     cursor: pointer;
 }
 
+.container {
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    width: 1200px;
+    clear: both;
+    display: flex;
+    justify-content: center;
+}
+
 .box {
     position: absolute;
-    top: calc(50vh - 200px);
-    left: calc(50vw - 200px);
     overflow: hidden;
     border: 1px solid;
     border-style: solid;
@@ -38,8 +46,17 @@ a, a:hover, a:visited, a:active {
 }
 
 .small-box {
-    width: 400px;
+    top: calc(50vh - 200px);
     height: 400px;
+    width: 400px;
+    margin: auto;
+}
+
+.big-box {
+    top: calc(50vh - 400px);
+    height: 800px;
+    width: 1200px;
+    margin: auto;
 }
 
 .box h1, p {

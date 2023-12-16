@@ -1,5 +1,5 @@
 {{define "upload"}}
-<div id="main-form" class="small-box">
+<div id="main-form" class="big-box box">
     <form
         id="form"
         hx-encoding="multipart/form-data"
@@ -25,6 +25,11 @@
         hx-post="/login/"
         hx-target="#main-form"
     >Log out</button>
+    <button
+        name="menu" id="menu" class="small-button"
+        hx-post="/menu/"
+        hx-target="#main-form"
+    >Browse files</button>
     <div class="message-box" id="messages"></div>
 </div>
 {{end}}

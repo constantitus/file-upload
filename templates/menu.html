@@ -1,8 +1,21 @@
 {{define "menu"}}
-<form
-    id="form"
-    hx-encoding="multipart/form-data"
-    hx-post="/upload/menu"
-    hx-target="#messages" >
-</form>
+<div id="menu" class="big-box box">
+    <div id="header">
+    </div>
+    <div id="footer">
+        {{template "files" .}}
+    </div>
+</div>
+{{end}}
+
+{{define "files"}}
+{{range .Entries}}
+<div id="" class="file">
+    <span>{{.Name}}</span>
+    <span>{{.Size}}</span>
+    <span><button>download</button></span>
+    <span><button>delete</button></span>
+    <span><button>rename</button></span>
+</div>
+{{end}}
 {{end}}

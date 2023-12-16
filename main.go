@@ -21,6 +21,7 @@ func main() {
     mux.Handle("/",         RateLimit(MainHandler))
     mux.Handle("/upload/",  RateLimit(UploadHandler))
     mux.Handle("/login/",   RateLimit(LoginHandler))
+    mux.Handle("/menu/",   RateLimit(FileBrowserHandler))
     server := http.Server{
         Addr:         port,
         Handler:      mux,

@@ -5,10 +5,8 @@
         <script src="https://unpkg.com/htmx.org@1.9.9"></script>
     </head>
     <body>
-        <div class="box">
-            <div id="main-form" class="small-box">
-                {{if .Logged}}{{template "upload" .}}{{else}}{{template "login" .}}{{end}}
-            </div>
+        <div id="main" class="container">
+            {{if .Logged}}{{template "upload" .}}{{else}}{{template "login" .}}{{end}}
         </div>
     </body>
 </html>

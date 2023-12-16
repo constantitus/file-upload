@@ -13,6 +13,7 @@ func init() {
         "templates/index.html",
         "templates/login.html",
         "templates/upload.html",
+        "templates/menu.html",
         ))
 }
 
@@ -49,8 +50,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
             Expires: time.Now(),
         }
         http.SetCookie(w, cookie)
-        w.Header().Set("HX-Retarget", "#main-form")
         w.Header().Set("HX-Swap", "outerHTML")
+        w.Header().Set("HX-Retarget", "#main")
         tmpl.ExecuteTemplate(w, "login", nil)
         return
     }
@@ -76,7 +77,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
         if CheckCredentials(&form, &w) {
             // TODO Maybe pass username ?
             w.Header().Set("HX-Swap", "outerHTML")
-            w.Header().Set("HX-Retarget", "#main-form")
+            w.Header().Set("HX-Retarget", "#main")
             tmpl.ExecuteTemplate(w, "upload", nil)
             return
         } else {
@@ -109,14 +110,16 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    if user := FromCookie(r); user.Name == "" {
+    var form UploadForm
+    user := FromCookie(r)
+    if user.Name == "" {
         w.Header().Set("HX-Swap", "outerHTML")
-        w.Header().Set("HX-Retarget", "#main-form")
+        w.Header().Set("HX-Retarget", "#main")
         tmpl.ExecuteTemplate(w, "login", nil)
         return
     }
+    form.User = user.Name
 
-    var form UploadForm
     if r.PostFormValue("overwrite") == "on" {
         form.Overwrite = true
     }
@@ -134,8 +137,12 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-// TODO: CPanel handler
-func MenuHandler(w http.ResponseWriter, r *http.Request) {
+
+type FbReply struct {
+    Entries []DirEntry
+}
+
+func FileBrowserHandler(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
         return
     }
@@ -144,4 +151,11 @@ func MenuHandler(w http.ResponseWriter, r *http.Request) {
     if user.Name == "" {
         return
     }
+
+    reply := FbReply{Entries: ReadUserDir(user.Name)}
+
+
+    w.Header().Set("HX-Swap", "outerHTML")
+    w.Header().Set("HX-Retarget", "#main")
+    tmpl.ExecuteTemplate(w, "menu", reply)
 }

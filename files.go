@@ -44,6 +44,7 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
             form.Messages = append(form.Messages, "No file selected")
             continue
         }
+        os.MkdirAll(Config.StoragePath + "/" + form.User, os.ModePerm)
         out, err := os.OpenFile(
             Config.StoragePath + "/" + form.User + "/" + file.name,
             os.O_RDWR|os.O_CREATE,
@@ -79,4 +80,33 @@ func writeFile(file *File, out os.File) string {
     } else {
         return fmt.Sprintf("written %s (%d bytes)", file.name, out_size)
     }
+}
+
+
+type DirEntry struct {
+    Name string
+    Size int64
+}
+
+func ReadUserDir(username string) []DirEntry {
+    var entries []DirEntry
+    dir, err := os.ReadDir(Config.StoragePath + "/" + username)
+    if err != nil {
+        log.Println(err.Error())
+        return entries
+    }
+
+    for _, entry := range dir {
+        if entry.IsDir() { continue }
+        info, err := entry.Info()
+        if err != nil {
+            fmt.Println(err.Error())
+            continue
+        }
+        entries = append(entries, DirEntry{
+            Name: entry.Name(),
+            Size: info.Size(),
+        })
+    }
+    return entries
 }
