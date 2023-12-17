@@ -10,7 +10,6 @@ require (
 	nullprogram.com/x/uuid v1.2.1
 )
 
-require (
-	github.com/stretchr/testify v1.8.2 // indirect
-	nullprogram.com/x/isaac64 v1.0.0 // indirect
-)
+require nullprogram.com/x/isaac64 v1.0.0 // indirect
+
+replace github.com/go-pkgz/expirable-cache/v2 => github.com/constantitus/expirable-cache/v2 v2.0.0-20231217195258-3fd0eed80adb

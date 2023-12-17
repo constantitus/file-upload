@@ -42,8 +42,10 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Delete cookies on logout
+    // Deletes UUID from memcache and cookies on logout
     if r.PostFormValue("logout") == "true" {
+        // clear the cache if the login is valid
+        ClearFromCache(r)
         cookie := &http.Cookie{
             Name: "uuid",
             Path: "/",

@@ -50,6 +50,20 @@ func FromCookie(r *http.Request) (user UserData) {
     return
 }
 
+func ClearFromCache(r *http.Request) {
+    uuidCookie, err := r.Cookie("uuid")
+    if err != nil {
+        return
+    }
+    uuidString, _ := strings.CutPrefix(uuidCookie.String(), "uuid=")
+    if uuidString == "" {
+        return
+    }
+
+    UUID.Set(uuidString, UserData{}, time.Duration(1))
+    return
+}
+
 // Checks the credentials against the database. If valid, it generates a UUID
 // which it saves in the memory cache and in a cookie.
 func CheckCredentials(form *LoginForm, w *http.ResponseWriter) (valid bool) {
@@ -70,15 +84,14 @@ func CheckCredentials(form *LoginForm, w *http.ResponseWriter) (valid bool) {
 func setUser(form *LoginForm) (cookie *http.Cookie) {
     id := gen.NewV4().String()
     var expires time.Time
+    var ttl time.Duration
     if form.Remember {
-        UUID.Set(id, UserData{form.Username, form.admin},
-            Config.UuidLongTTL * time.Hour)
-        expires = time.Now().Add(Config.UuidLongTTL * time.Hour)
+        ttl = Config.UuidLongTTL
     } else {
-        UUID.Set(id, UserData{form.Username, form.admin},
-            Config.UuidDefTTL * time.Hour)
-        expires = time.Now().Add(Config.UuidDefTTL * time.Hour)
+        ttl = Config.UuidDefTTL
     }
+    UUID.Set(id, UserData{form.Username, form.admin}, ttl)
+    expires = time.Now().Add(ttl)
     
 
     cookie = &http.Cookie{
@@ -90,3 +103,4 @@ func setUser(form *LoginForm) (cookie *http.Cookie) {
 
     return
 }
+
