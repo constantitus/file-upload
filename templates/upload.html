@@ -1,48 +1,55 @@
 {{define "upload"}}
 <div id="main-form" class="big-box box">
-    <form
-        id="form"
-        hx-encoding="multipart/form-data"
-        hx-post="/upload/"
-        hx-target="#messages"
-    >
-        <h1>File upload</h1>
-        <input type="file" name="file" multiple="multiple" class="form">
-        <p /><div class="check-box">
-            <input type="checkbox" name="overwrite" id="overwrite" class="checkbox" />
-            <label for="overwrite">Overwrite</label>
+    <div class="upload-form">
+        <form
+            id="form"
+            hx-encoding="multipart/form-data"
+            hx-post="/upload/"
+            hx-target="#messages"
+        >
+
+            <div class="file-input">
+                <input type="file" name="file" multiple="multiple">
+                <div class="check-box">
+                    <input type="checkbox" name="overwrite" id="overwrite" class="checkbox" />
+                    <label for="overwrite">Overwrite</label>
+                </div>
+            </div>
+        </form>
+
+        <div>
+            <button form="form" class="button" >
+                Upload File
+            </button>
         </div>
-        <button class="button">
-            Upload File
-        </button>
-        <div id="update-progress">
-            {{template "progress" .}}
+
+        <div style="width:100%">
+            <div class="message-box" id="messages"></div>
         </div>
-    </form>
-    <button
-        name="logout" id="logout" class="small-button"
-        value="true"
-        hx-post="/login/"
-        hx-target="#main-form"
-    >Log out</button>
-    <button
-        name="menu" id="menu" class="small-button"
-        hx-post="/menu/"
-        hx-target="#main-form"
-    >Browse files</button>
-    <div class="message-box" id="messages"></div>
+
+        <button
+            name="logout" id="logout" class="small-button"
+            value="true"
+            hx-post="/login/"
+            hx-target="#main-form"
+        >Log out</button>
+
+    </div>
+    <div id="update-progress">
+        {{template "progress" .}}
+    </div>
 </div>
 {{end}}
 
 {{define "progress"}}
-    <p /><progress id="progress" value="0" max="100" style="visibility:hidden"></progress>
-    <script>
-    htmx.on("#main-form", "htmx:xhr:progress", function(evt) {
-        htmx.find("#progress").style.visibility = "visible";
-        htmx.find("#progress").setAttribute("value", evt.detail.loaded/evt.detail.total * 100);
-    });
-    htmx.on("#main-form", "htmx:xhr:loadend", function(evt) {
-        htmx.find("#progress").style.visibility = "hidden";
-    });
-    </script>
+<p /><progress id="progress" class="progress" value="0" max="100" style="visibility:hidden"></progress>
+<script>
+htmx.on("#main-form", "htmx:xhr:progress", function(evt) {
+    htmx.find("#progress").style.visibility = "visible";
+    htmx.find("#progress").setAttribute("value", evt.detail.loaded/evt.detail.total * 100);
+});
+htmx.on("#main-form", "htmx:xhr:loadend", function(evt) {
+    htmx.find("#progress").style.visibility = "hidden";
+});
+</script>
 {{end}}
