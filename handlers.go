@@ -13,16 +13,20 @@ func init() {
         "templates/index.html",
         "templates/login.html",
         "templates/upload.html",
-        "templates/menu.html",
         ))
 }
 
 // The root of the website
 func MainHandler(w http.ResponseWriter, r *http.Request) {
+    // TODO: Pass user data to upload template
+    data := FromCookie(r)
     args := struct{
         Logged bool
-    }{
-        FromCookie(r).Name != "",
+        Files []DirEntry // temporary solution
+    }{}
+    if data.Name != "" {
+        args.Logged = true
+        args.Files = ReadUserDir(data.Name)
     }
     w.Write([]byte(Style))
     tmpl.ExecuteTemplate(w, "base", args)
@@ -30,11 +34,12 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
-type LoginForm struct {
+type LoginData struct {
     Username string
     Password string
     Remember bool
     admin bool
+    Files []DirEntry
 }
 // /login/
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +63,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    var form LoginForm
+    var form LoginData
     form.Username = r.PostFormValue("username")
     form.Password = r.PostFormValue("password")
     if r.PostFormValue("remember") == "on" {
@@ -77,10 +82,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
         return
     } else {
         if CheckCredentials(&form, &w) {
-            // TODO Maybe pass username ?
             w.Header().Set("HX-Swap", "outerHTML")
             w.Header().Set("HX-Retarget", "#main")
-            tmpl.ExecuteTemplate(w, "upload", nil)
+            // TODO: Pass userdata
+            tmpl.ExecuteTemplate(w, "upload", struct{
+                Files []DirEntry
+            }{
+                ReadUserDir(form.Username), // temporary solution
+            })
             return
         } else {
             w.Write([]byte("<p>Invalid Username/Password"))
@@ -101,7 +110,7 @@ func getClientIP(r *http.Request) (ip string) {
 }
 
 
-type UploadForm struct {
+type UploadData struct {
     User string
     Messages []string
     Overwrite bool
@@ -112,7 +121,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    var form UploadForm
+    var form UploadData
     user := FromCookie(r)
     if user.Name == "" {
         w.Header().Set("HX-Swap", "outerHTML")
@@ -127,23 +136,37 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // handle files
+    var entries []DirEntry
     if files := r.MultipartForm.File["file"]; files != nil {
-        HandleFiles(&form, files)
+        HandleFiles(&form, files, &entries)
     } else {
         form.Messages = append(form.Messages, "No file chosen")
     }
 
-    // w.Header().Set("HX-Retarget", "#messages")
+    // Files (HAS TO GO FIRST)
+    tmpl.ExecuteTemplate(w, "file", struct{Entries []DirEntry}{entries})
+    /* w.Write([]byte(`<tr class="file">
+        <td>pls</td>
+        <td>work</td>
+        <td><button>download</button></td>
+        <td><button>delete</button></td>
+        <td><button>rename</button></td>
+    </tr>`)) */
+    // Messages
+    w.Write([]byte(`<div id="messages">`))
     for _, msg := range form.Messages {
-        w.Write([]byte("<p>" + msg))
+        w.Write([]byte(`
+    <p>` + msg))
     }
+    w.Write([]byte(`</div>`))
 }
+
 
 
 type FbReply struct {
     Entries []DirEntry
 }
-
+// Test handler
 func FileBrowserHandler(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
         return
@@ -156,8 +179,13 @@ func FileBrowserHandler(w http.ResponseWriter, r *http.Request) {
 
     reply := FbReply{Entries: ReadUserDir(user.Name)}
 
-
     w.Header().Set("HX-Swap", "outerHTML")
     w.Header().Set("HX-Retarget", "#main")
     tmpl.ExecuteTemplate(w, "menu", reply)
 }
+
+func FileDownload() {}
+
+func FileDelete() {}
+
+func FileReneme() {}

@@ -3,8 +3,10 @@
     <head>
         <title>upload</title>
         <script src="https://unpkg.com/htmx.org@1.9.9"></script>
+        <script src="https://unpkg.com/htmx.org/dist/ext/multi-swap.js"></script>
+        <meta name="htmx-config" content='{"useTemplateFragments":"true"}'>
     </head>
-    <body>
+    <body hx-boost="true" hx-ext="multi-swap">
         <div id="main" class="container">
             {{if .Logged}}{{template "upload" .}}{{else}}{{template "login" .}}{{end}}
         </div>

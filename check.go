@@ -66,7 +66,7 @@ func ClearFromCache(r *http.Request) {
 
 // Checks the credentials against the database. If valid, it generates a UUID
 // which it saves in the memory cache and in a cookie.
-func CheckCredentials(form *LoginForm, w *http.ResponseWriter) (valid bool) {
+func CheckCredentials(form *LoginData, w *http.ResponseWriter) (valid bool) {
     var hash string
     hash, form.admin = QueryDB(form.Username)
     tmp := sha256.New()
@@ -81,7 +81,7 @@ func CheckCredentials(form *LoginForm, w *http.ResponseWriter) (valid bool) {
     return false
 }
 
-func setUser(form *LoginForm) (cookie *http.Cookie) {
+func setUser(form *LoginData) (cookie *http.Cookie) {
     id := gen.NewV4().String()
     var expires time.Time
     var ttl time.Duration

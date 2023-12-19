@@ -5,7 +5,9 @@
             id="form"
             hx-encoding="multipart/form-data"
             hx-post="/upload/"
-            hx-target="#messages"
+            hx-target="#directory"
+            hx-swap="beforeend"
+            hx-select-oob="#messages:innerHTML"
         >
 
             <div class="file-input">
@@ -18,13 +20,14 @@
         </form>
 
         <div>
-            <button form="form" class="button" >
+            <button form="form" class="button">
                 Upload File
             </button>
         </div>
 
         <div style="width:100%">
-            <div class="message-box" id="messages"></div>
+            <div class="message-box" id="messages">
+            </div>
         </div>
 
         <button
@@ -38,6 +41,9 @@
     <div id="update-progress">
         {{template "progress" .}}
     </div>
+    <table>
+        {{template "files" .}}
+    </table>
 </div>
 {{end}}
 
@@ -52,4 +58,30 @@ htmx.on("#main-form", "htmx:xhr:loadend", function(evt) {
     htmx.find("#progress").style.visibility = "hidden";
 });
 </script>
+{{end}}
+
+{{define "files"}}
+<tbody id="directory">
+    {{range .Files}}
+    <tr class="file">
+        <td>{{.Name}}</td>
+        <td>{{.Size}}</td>
+        <td><button>download</button></td>
+        <td><button>delete</button></td>
+        <td><button>rename</button></td>
+    </tr>
+    {{end}}
+</tbody>
+{{end}}
+
+{{define "file"}}
+{{range .Entries}}
+<tr class="file">
+    <td>{{.Name}}</td>
+    <td>{{.Size}}</td>
+    <td><button>download</button></td>
+    <td><button>delete</button></td>
+    <td><button>rename</button></td>
+</tr>
+{{end}}
 {{end}}

@@ -46,6 +46,9 @@ a, a:hover, a:visited, a:active {
 }
 
 .small-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     top: calc(50vh - 200px);
     height: 400px;
     width: 400px;
@@ -82,6 +85,12 @@ a, a:hover, a:visited, a:active {
     border: 0;
 }
 
+.small-box .field, .button {
+    min-width: 300px;
+    margin: 20px auto;
+    padding: 15px;
+}
+
 .box input:focus,.box input:active,.box button:focus,.box button:active{
     outline: none;
 }
@@ -91,13 +100,13 @@ progress::-webkit-progress-value { background: #742ECC; }
 .box progress {
     overflow: hidden;
     width: 100%;
-    height: 8px;
+    height: 6px;
     background: transparent;
     color: #742ECC;
 }
 
 .progress-box {
-    height: 8px;
+    height: 6px;
 }
 
 .box .button {

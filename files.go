@@ -13,7 +13,7 @@ type File struct {
     content *[]byte
 }
 
-func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
+func HandleFiles(form *UploadData, headers []*multipart.FileHeader, entries *[]DirEntry) {
     // Parse files
     var files []File
     for _, f := range headers {
@@ -62,22 +62,23 @@ func HandleFiles(form *UploadForm, headers []*multipart.FileHeader) {
         if exists {
             if form.Overwrite {
                 msg += "over" // overwritten
-                msg += writeFile(&file, *out)
+                msg += writeFile(&file, *out, entries)
             } else {
                 msg += "File already exists: " + file.name
             }
         } else {
-            msg += writeFile(&file, *out)
+            msg += writeFile(&file, *out, entries)
         }
         form.Messages = append(form.Messages, msg)
     }
 }
 
-func writeFile(file *File, out os.File) string {
+func writeFile(file *File, out os.File, entries *[]DirEntry) string {
     out_size, err := out.Write(*file.content)
     if err != nil {
         return err.Error()
     } else {
+        *entries = append(*entries, DirEntry{Name: file.name, Size: int64(out_size)})
         return fmt.Sprintf("written %s (%d bytes)", file.name, out_size)
     }
 }
@@ -87,7 +88,6 @@ type DirEntry struct {
     Name string
     Size int64
 }
-
 func ReadUserDir(username string) []DirEntry {
     var entries []DirEntry
     dir, err := os.ReadDir(Config.StoragePath + "/" + username)
