@@ -11,7 +11,12 @@
             <div class="file-input">
                 <input type="file" name="file" multiple="multiple">
                 <div class="check-box">
-                    <input type="checkbox" name="overwrite" id="overwrite" class="checkbox" />
+                    <input
+                        type="checkbox"
+                        name="overwrite"
+                        id="overwrite"
+                        class="checkbox"
+                    />
                     <label for="overwrite">Overwrite</label>
                 </div>
             </div>
@@ -49,11 +54,21 @@
 {{end}}
 
 {{define "progress"}}
-<p /><progress id="progress" class="progress" value="0" max="100" style="visibility:hidden"></progress>
+<p />
+<progress
+    id="progress"
+    class="progress"
+    value="0"
+    max="100"
+    style="visibility:hidden"
+></progress>
 <script>
 htmx.on("#main-form", "htmx:xhr:progress", function(evt) {
     htmx.find("#progress").style.visibility = "visible";
-    htmx.find("#progress").setAttribute("value", evt.detail.loaded/evt.detail.total * 100);
+    htmx.find("#progress").setAttribute(
+        "value",
+        evt.detail.loaded/evt.detail.total * 100
+    );
 });
 htmx.on("#main-form", "htmx:xhr:loadend", function(evt) {
     htmx.find("#progress").style.visibility = "hidden";
@@ -65,35 +80,6 @@ htmx.on("#main-form", "htmx:xhr:loadend", function(evt) {
 {{range .Files}}
 <tr id="{{.Name}}"
     class="{{.Name}}"
->
-    <td>{{.Name}}</td>
-    <td>{{.Size}}</td>
-    <td><button class=""
-        name="download"
-        value="{{.Name}}"
-        hx-post="/files"
-    >download</button></td>
-    <td><button class=""
-        name="delete"
-        value="{{.Name}}"
-        hx-post="/files"
-    >delete</button></td>
-    <td><button class=""
-        name="rename"
-        value="{{.Name}}"
-        hx-post="/files"
-        hx-target="#extra"
-        hx-swap="innerHTML"
-    >rename</button></td>
-</tr>
-{{end}}
-{{end}}
-
-{{define "file"}}
-{{range .Files}}
-<tr id="{{.Name}}"
-    class="{{.Name}}"
-    hx-swap-oob="outerHTML:#{{.Name}}"
 >
     <td>{{.Name}}</td>
     <td>{{.Size}}</td>

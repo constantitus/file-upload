@@ -132,20 +132,21 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // handle files
-    var entries []DirEntry
     if files := r.MultipartForm.File["file"]; files != nil {
-        HandleFiles(&form, files, &entries)
+        HandleFiles(&form, files)
     } else {
         form.Messages = append(form.Messages, "No file chosen")
     }
 
-    // w.Write([]byte(`<div id="">`))
-    // w.Write([]byte(`</div>`))
-    // Files (HAS TO GO FIRST)
-    // w.Write([]byte(`<tbody hx-swap-oob="beforeend:#directory">`))
-    tmpl.ExecuteTemplate(w, "file", struct{Files []DirEntry}{entries})
-    // w.Write([]byte(`</tbody>`))
-    // Messages
+    // Update files - We're refreshing the whole table.
+    // While we could add new elements, htmx has nothing that can allow us to
+    // modify an existing table element. It'd be too much of a hassle anyway.
+    entries := ReadUserDir(user.Name)
+    w.Write([]byte(`<tbody hx-swap-oob="innerHTML:#directory">`))
+    tmpl.ExecuteTemplate(w, "files", struct{Files []DirEntry}{entries})
+    w.Write([]byte(`</tbody>`))
+
+    // Print messages
     for _, msg := range form.Messages {
         w.Write([]byte(`
     <p>` + msg))

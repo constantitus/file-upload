@@ -82,7 +82,7 @@ func ParseConfig() {
     Config.Rate = rate.Limit(settings.Rate)
     Config.RateBursts = settings.Rate_bursts
     Config.RateCooldown = parseTime(settings.Rate_cooldown)
-    Config.FilesizeMax = parseSize(settings.Filesize_max)
+    Config.FilesizeMax = sizeAtoi(settings.Filesize_max)
 
     Style = []byte("<style>")
     css, _ := os.ReadFile(Config.CSS)
@@ -90,7 +90,7 @@ func ParseConfig() {
     Style = append(Style, []byte("</style>")...)
 }
 
-func parseSize(in any) int64 {
+func sizeAtoi(in any) int64 {
     var s string
     switch in.(type) {
         case string:

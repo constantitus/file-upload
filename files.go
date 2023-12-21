@@ -6,6 +6,7 @@ import (
 	"log"
 	"mime/multipart"
 	"os"
+	"strconv"
 )
 
 type File struct {
@@ -13,7 +14,7 @@ type File struct {
     content *[]byte
 }
 
-func HandleFiles(form *UploadData, headers []*multipart.FileHeader, entries *[]DirEntry) {
+func HandleFiles(form *UploadData, headers []*multipart.FileHeader) {
     // Parse files
     var files []File
     for _, f := range headers {
@@ -62,32 +63,31 @@ func HandleFiles(form *UploadData, headers []*multipart.FileHeader, entries *[]D
         if exists {
             if form.Overwrite {
                 msg += "over" // overwritten
-                msg += writeFile(&file, *out, entries)
+                msg += writeFile(&file, *out)
             } else {
                 msg += "File already exists: " + file.name
             }
         } else {
-            msg += writeFile(&file, *out, entries)
+            msg += writeFile(&file, *out)
         }
         form.Messages = append(form.Messages, msg)
     }
 }
 
-func writeFile(file *File, out os.File, entries *[]DirEntry) string {
+func writeFile(file *File, out os.File) string {
     out_size, err := out.Write(*file.content)
     if err != nil {
         return err.Error()
     } else {
-        *entries = append(*entries, DirEntry{Name: file.name, Size: int64(out_size), Overwritten: true}) // TODO: something lmao
-        return fmt.Sprintf("written %s (%d bytes)", file.name, out_size)
+        return fmt.Sprintf("written %s (%s)", file.name, sizeItoa(out_size))
     }
 }
 
 
 type DirEntry struct {
     Name string
-    Size int64
-    Overwritten bool
+    Size string
+    Date int
 }
 func ReadUserDir(username string) []DirEntry {
     var entries []DirEntry
@@ -104,10 +104,25 @@ func ReadUserDir(username string) []DirEntry {
             fmt.Println(err.Error())
             continue
         }
+
         entries = append(entries, DirEntry{
             Name: entry.Name(),
-            Size: info.Size(),
+            Size: sizeItoa(int(info.Size())),
         })
     }
     return entries
+}
+
+func sizeItoa(in int) (out string) {
+    if i := (in >> 30); i > 0 {
+        return strconv.Itoa(i) + "GB"
+    }
+    if i := (in >> 20); i > 0 {
+        return strconv.Itoa(i) + "MB"
+    }
+    if i := (in >> 10); i > 0 {
+        return strconv.Itoa(i) + "KB"
+    } else {
+        return strconv.Itoa(in) + "B"
+    }
 }
