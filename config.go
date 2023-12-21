@@ -26,7 +26,6 @@ var(
         RateBursts int
         RateCooldown time.Duration
         FilesizeMax int64
-        // TODO: SaveCache
     }{ // defaults
         "./",
         "./database.db",

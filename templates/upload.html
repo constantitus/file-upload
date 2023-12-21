@@ -4,10 +4,8 @@
         <form
             id="form"
             hx-encoding="multipart/form-data"
-            hx-post="/upload/"
-            hx-target="#directory"
-            hx-swap="beforeend"
-            hx-select-oob="#messages:innerHTML"
+            hx-post="/upload"
+            hx-target="#messages"
         >
 
             <div class="file-input">
@@ -20,7 +18,7 @@
         </form>
 
         <div>
-            <button form="form" class="button">
+            <button form="form" class="button upload">
                 Upload File
             </button>
         </div>
@@ -33,7 +31,7 @@
         <button
             name="logout" id="logout" class="small-button"
             value="true"
-            hx-post="/login/"
+            hx-post="/login"
             hx-target="#main-form"
         >Log out</button>
 
@@ -42,9 +40,12 @@
         {{template "progress" .}}
     </div>
     <table>
-        {{template "files" .}}
+        <tbody id="directory">
+            {{template "files" .}}
+        </tbody>
     </table>
 </div>
+<div id="extra"></div>
 {{end}}
 
 {{define "progress"}}
@@ -61,27 +62,79 @@ htmx.on("#main-form", "htmx:xhr:loadend", function(evt) {
 {{end}}
 
 {{define "files"}}
-<tbody id="directory">
-    {{range .Files}}
-    <tr class="file">
-        <td>{{.Name}}</td>
-        <td>{{.Size}}</td>
-        <td><button>download</button></td>
-        <td><button>delete</button></td>
-        <td><button>rename</button></td>
-    </tr>
-    {{end}}
-</tbody>
+{{range .Files}}
+<tr id="{{.Name}}"
+    class="{{.Name}}"
+>
+    <td>{{.Name}}</td>
+    <td>{{.Size}}</td>
+    <td><button class=""
+        name="download"
+        value="{{.Name}}"
+        hx-post="/files"
+    >download</button></td>
+    <td><button class=""
+        name="delete"
+        value="{{.Name}}"
+        hx-post="/files"
+    >delete</button></td>
+    <td><button class=""
+        name="rename"
+        value="{{.Name}}"
+        hx-post="/files"
+        hx-target="#extra"
+        hx-swap="innerHTML"
+    >rename</button></td>
+</tr>
+{{end}}
 {{end}}
 
 {{define "file"}}
-{{range .Entries}}
-<tr class="file">
+{{range .Files}}
+<tr id="{{.Name}}"
+    class="{{.Name}}"
+    hx-swap-oob="outerHTML:#{{.Name}}"
+>
     <td>{{.Name}}</td>
     <td>{{.Size}}</td>
-    <td><button>download</button></td>
-    <td><button>delete</button></td>
-    <td><button>rename</button></td>
+    <td><button class=""
+        name="download"
+        value="{{.Name}}"
+        hx-post="/files"
+    >download</button></td>
+    <td><button class=""
+        name="delete"
+        value="{{.Name}}"
+        hx-post="/files"
+    >delete</button></td>
+    <td><button class=""
+        name="rename"
+        value="{{.Name}}"
+        hx-post="/files"
+        hx-target="#extra"
+        hx-swap="innerHTML"
+    >rename</button></td>
 </tr>
 {{end}}
+{{end}}
+
+{{define "rename"}}
+<div id="pop-window" class="small-box box pop-window">
+    <form
+        id="rename-form"
+        hx-post="/files"
+        hx-target="#extra"
+        hx-select-oob="#messages:innerHTML"
+    >
+
+        <div class="file-input">
+            <label for="name">Rename the file</label>
+            <input type="text" name="name" value="{{.Name}}" />
+        </div>
+        <button>Submit</button>
+    </form>
+    <button class="pop-close"
+        hx-target="#extra"
+    >×</button>
+</div>
 {{end}}

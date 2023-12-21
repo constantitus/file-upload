@@ -78,7 +78,7 @@ func writeFile(file *File, out os.File, entries *[]DirEntry) string {
     if err != nil {
         return err.Error()
     } else {
-        *entries = append(*entries, DirEntry{Name: file.name, Size: int64(out_size)})
+        *entries = append(*entries, DirEntry{Name: file.name, Size: int64(out_size), Overwritten: true}) // TODO: something lmao
         return fmt.Sprintf("written %s (%d bytes)", file.name, out_size)
     }
 }
@@ -87,6 +87,7 @@ func writeFile(file *File, out os.File, entries *[]DirEntry) string {
 type DirEntry struct {
     Name string
     Size int64
+    Overwritten bool
 }
 func ReadUserDir(username string) []DirEntry {
     var entries []DirEntry

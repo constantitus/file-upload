@@ -33,9 +33,9 @@ func main() {
     log.Println("Server running on port " + port)
     mux := http.NewServeMux()
     mux.Handle("/",         RateLimit(MainHandler))
-    mux.Handle("/upload/",  RateLimit(UploadHandler))
-    mux.Handle("/login/",   RateLimit(LoginHandler))
-    mux.Handle("/files/",   RateLimit(FileBrowserHandler))
+    mux.Handle("/upload",  RateLimit(UploadHandler))
+    mux.Handle("/login",   RateLimit(LoginHandler))
+    mux.Handle("/files",   RateLimit(FileHandler))
     server := http.Server{
         Addr:         port,
         Handler:      mux,

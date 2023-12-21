@@ -1,9 +1,9 @@
 {{define "login"}}
-<div id="login" class="small-box box">
+<div id="login" class="small-box box" style="height:400px">
     <form
-        id="form"
+        id="form" class="login-form"
         hx-encoding="multipart/form-data"
-        hx-post="/login/"
+        hx-post="/login"
         hx-target="#messages" >
         <h1>Login</h1>
         <input type="text" placeholder="Username" name="username" class="field" />

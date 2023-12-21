@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"time"
@@ -30,7 +31,6 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
     }
     w.Write([]byte(Style))
     tmpl.ExecuteTemplate(w, "base", args)
-
 }
 
 
@@ -47,9 +47,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Deletes UUID from memcache and cookies on logout
+    // Logout
     if r.PostFormValue("logout") == "true" {
-        // clear the cache if the login is valid
         ClearFromCache(r)
         cookie := &http.Cookie{
             Name: "uuid",
@@ -57,7 +56,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
             Expires: time.Now(),
         }
         http.SetCookie(w, cookie)
-        w.Header().Set("HX-Swap", "outerHTML")
         w.Header().Set("HX-Retarget", "#main")
         tmpl.ExecuteTemplate(w, "login", nil)
         return
@@ -82,7 +80,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
         return
     } else {
         if CheckCredentials(&form, &w) {
-            w.Header().Set("HX-Swap", "outerHTML")
             w.Header().Set("HX-Retarget", "#main")
             // TODO: Pass userdata
             tmpl.ExecuteTemplate(w, "upload", struct{
@@ -124,7 +121,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
     var form UploadData
     user := FromCookie(r)
     if user.Name == "" {
-        w.Header().Set("HX-Swap", "outerHTML")
         w.Header().Set("HX-Retarget", "#main")
         tmpl.ExecuteTemplate(w, "login", nil)
         return
@@ -143,31 +139,34 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
         form.Messages = append(form.Messages, "No file chosen")
     }
 
+    // w.Write([]byte(`<div id="">`))
+    // w.Write([]byte(`</div>`))
     // Files (HAS TO GO FIRST)
-    tmpl.ExecuteTemplate(w, "file", struct{Entries []DirEntry}{entries})
-    /* w.Write([]byte(`<tr class="file">
-        <td>pls</td>
-        <td>work</td>
-        <td><button>download</button></td>
-        <td><button>delete</button></td>
-        <td><button>rename</button></td>
-    </tr>`)) */
+    // w.Write([]byte(`<tbody hx-swap-oob="beforeend:#directory">`))
+    tmpl.ExecuteTemplate(w, "file", struct{Files []DirEntry}{entries})
+    // w.Write([]byte(`</tbody>`))
     // Messages
-    w.Write([]byte(`<div id="messages">`))
     for _, msg := range form.Messages {
         w.Write([]byte(`
     <p>` + msg))
     }
-    w.Write([]byte(`</div>`))
 }
 
 
+// /files/
+func FileHandler(w http.ResponseWriter, r *http.Request) {
+    // handle the file download
+    if r.Method == "GET" {
+        query := r.URL.Query()
+        user, got := UUID.Get(query.Get("uuid"))
+        file := query.Get("download")
+        if !got || file == "" { return }
+        w.Header().Set("Content-Disposition", "attachment; filename=" + file)
+        w.Header().Set("Content-Type", "application/octet-stream")
+        http.ServeFile(w, r, Config.StoragePath + "/" + user.Name + "/" + file)
+        return
+    }
 
-type FbReply struct {
-    Entries []DirEntry
-}
-// Test handler
-func FileBrowserHandler(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
         return
     }
@@ -177,15 +176,31 @@ func FileBrowserHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    reply := FbReply{Entries: ReadUserDir(user.Name)}
-
-    w.Header().Set("HX-Swap", "outerHTML")
-    w.Header().Set("HX-Retarget", "#main")
-    tmpl.ExecuteTemplate(w, "menu", reply)
+    params := []string{"download", "delete", "rename"}
+    for _, param := range params {
+        val := r.PostFormValue(param)
+        if val == "" {
+            continue
+        }
+        switch param {
+            case "download":
+            uuid, err := r.Cookie("uuid")
+            if err != nil {
+                return
+            }
+            w.Header().Set(
+                "HX-Redirect",
+                fmt.Sprintf("/files?uuid=%s&download=%s", uuid.Value, val),
+                )
+            return
+            case "delete":
+            // TODO: handle delete
+            case "rename":
+            tmpl.ExecuteTemplate(w, "rename", nil)
+            newname := r.PostFormValue("newname")
+            if newname == "" {
+            }
+        }
+    }
 }
 
-func FileDownload() {}
-
-func FileDelete() {}
-
-func FileReneme() {}

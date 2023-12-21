@@ -46,12 +46,12 @@ a, a:hover, a:visited, a:active {
 }
 
 .small-box {
+    position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
     top: calc(50vh - 200px);
-    height: 400px;
-    width: 400px;
+    min-width: 400px;
     margin: auto;
 }
 
@@ -85,10 +85,15 @@ a, a:hover, a:visited, a:active {
     border: 0;
 }
 
-.small-box .field, .button {
+.small-box .field {
     min-width: 300px;
-    margin: 20px auto;
+    margin: 10px auto;
     padding: 15px;
+}
+.small-box .button {
+    min-width: 300px;
+    padding: 15px;
+    margin-top: 20px;
 }
 
 .box input:focus,.box input:active,.box button:focus,.box button:active{
@@ -116,9 +121,12 @@ progress::-webkit-progress-value { background: #742ECC; }
     padding: 10px;
     font-size: 20px;
     width: 200px;
-    margin-left: 8px;
     display: block;
     cursor: pointer;
+}
+
+.button .upload {
+    margin-left: 8px;
 }
 
 .box .small-button {
@@ -130,6 +138,12 @@ progress::-webkit-progress-value { background: #742ECC; }
     min-width: 100px;
     display: flex;
     justify-content: flex-end;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .check-box {
