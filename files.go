@@ -9,45 +9,22 @@ import (
 	"strconv"
 )
 
-type File struct {
-    name string
-    content *[]byte
-}
 
 func HandleFiles(form *UploadData, headers []*multipart.FileHeader) {
     // Parse files
-    var files []File
-    for _, f := range headers {
+    for _, header := range headers {
         // TODO: limit f.Size()
-        file, err := f.Open()
-        if err != nil {
-            log.Println("Upload error:", err.Error())
-            continue
-        }
-        defer file.Close()
 
-        buf, err := io.ReadAll(file)
-        if err != nil {
-            form.Messages = append(form.Messages, err.Error())
-            break
-        }
-
-        files = append(files, File{
-            name: f.Filename,
-            content: &buf,
-        })
-    }
-
-    // Write files
-    for _, file := range files {
-        var msg string
-        if file.name == "" {
+        if header.Filename == "" {
             form.Messages = append(form.Messages, "No file selected")
             continue
         }
+
+        // this is in case the user doesn't have a dir yet
         os.MkdirAll(Config.StoragePath + "/" + form.User, os.ModePerm)
+
         out, err := os.OpenFile(
-            Config.StoragePath + "/" + form.User + "/" + file.name,
+            Config.StoragePath + "/" + form.User + "/" + header.Filename,
             os.O_RDWR|os.O_CREATE,
             0644)
         defer out.Close()
@@ -55,31 +32,41 @@ func HandleFiles(form *UploadData, headers []*multipart.FileHeader) {
             form.Messages = append(form.Messages, err.Error())
             continue
         }
+
+        // 
         out_stat, err := out.Stat()
-        if err != nil {
-            log.Println("our.Stat()", err)
-        }
-        exists := out_stat.Size() != 0
-        if exists {
-            if form.Overwrite {
-                msg += "over" // overwritten
-                msg += writeFile(&file, *out)
-            } else {
-                msg += "File already exists: " + file.name
+        if err != nil { /* why would this even error */ }
+
+        if out_stat.Size() == 0 || form.Overwrite {
+            written, err := storeFile(header, *out)
+            if err != nil {
+                form.Messages = append(form.Messages, err.Error())
+                continue
             }
-        } else {
-            msg += writeFile(&file, *out)
+
+            var msg string
+            if form.Overwrite { msg = "over" }
+            msg += fmt.Sprintf("written %s (%s)", header.Filename, sizeItoa(written))
+            form.Messages = append(form.Messages, msg)
+            continue
         }
-        form.Messages = append(form.Messages, msg)
+        form.Messages = append(
+            form.Messages, "File already exists: " + header.Filename)
     }
 }
-
-func writeFile(file *File, out os.File) string {
-    out_size, err := out.Write(*file.content)
+// The actual reading and writing
+func storeFile(header *multipart.FileHeader, out os.File) (int64, error) {
+    file, err := header.Open()
+    defer file.Close()
     if err != nil {
-        return err.Error()
+        return 0, err
+    }
+
+    out_size, err := io.Copy(&out, file)
+    if err != nil {
+        return 0, err
     } else {
-        return fmt.Sprintf("written %s (%s)", file.name, sizeItoa(out_size))
+        return out_size, nil
     }
 }
 
@@ -107,13 +94,14 @@ func ReadUserDir(username string) []DirEntry {
 
         entries = append(entries, DirEntry{
             Name: entry.Name(),
-            Size: sizeItoa(int(info.Size())),
+            Size: sizeItoa(info.Size()),
         })
     }
     return entries
 }
 
-func sizeItoa(in int) (out string) {
+func sizeItoa(size int64) (out string) {
+    in := int(size)
     if i := (in >> 30); i > 0 {
         return strconv.Itoa(i) + "GB"
     }
