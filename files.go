@@ -46,7 +46,7 @@ func HandleFiles(form *UploadData, headers []*multipart.FileHeader) {
             }
 
             var msg string
-            if form.Overwrite { msg = "over" }
+            if out_stat.Size() > 0 && form.Overwrite { msg = "over" } // "overwritten"
             msg += fmt.Sprintf("written %s (%s)", header.Filename, sizeItoa(written))
             form.Messages = append(form.Messages, msg)
             continue
@@ -135,4 +135,14 @@ func parseDate(d time.Time) string {
     } else {
         return fmt.Sprintf("%s %d", mon, d.Year())
     }
+}
+
+
+func TryRename(user string, old string, newname string) error {
+    // TODO: sanitize username
+    // don't return the &LinkerError
+    return os.Rename(
+        Config.StoragePath + "/" + user + "/" + old,
+        Config.StoragePath + "/" + user + "/" + newname,
+        )
 }

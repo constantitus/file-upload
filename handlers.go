@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -138,19 +139,21 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
         form.Messages = append(form.Messages, "No file chosen")
     }
 
+    w.Header().Set("HX-Reswap", "multi:#file-browser:outerHTML,#messages")
+
     // Update files - We're refreshing the whole table.
     // While we could add new elements, htmx has nothing that can allow us to
     // modify an existing table element. It'd be too much of a hassle anyway.
     entries := ReadUserDir(user.Name)
-    w.Write([]byte(`<tbody hx-swap-oob="innerHTML:#directory">`))
-    tmpl.ExecuteTemplate(w, "files", struct{Files []DirEntry}{entries})
-    w.Write([]byte(`</tbody>`))
+    tmpl.ExecuteTemplate(w, "file-table", struct{Files []DirEntry}{entries})
 
     // Print messages
+    w.Write([]byte(`<div id="messages">`))
     for _, msg := range form.Messages {
         w.Write([]byte(`
     <p>` + msg))
     }
+    w.Write([]byte(`</div>`))
 }
 
 
@@ -194,14 +197,47 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
                 fmt.Sprintf("/files?uuid=%s&download=%s", uuid.Value, val),
                 )
             return
+
             case "delete":
             // TODO: handle delete
+
             case "rename":
-            tmpl.ExecuteTemplate(w, "rename", nil)
-            newname := r.PostFormValue("newname")
-            if newname == "" {
+            reply := struct{
+                Name string;
+                Message string;
+            }{}
+            reply.Name = r.PostFormValue("rename")
+            if reply.Name == "" {
+                return // This should always have a value
             }
+            if newname := r.PostFormValue("newname"); newname != "" {
+                if strings.ContainsRune(reply.Name, '/') {
+                    reply.Message = `Illegal character "/"`
+                } else {
+                    err := TryRename(user.Name, reply.Name, newname)
+                    if err == nil {
+                        // todo: make this cleaner
+                        w.Header().Set("HX-Reswap", "multi:#file-browser:outerHTML,#pop-window:delete")
+
+                        // update table
+                        entries := ReadUserDir(user.Name)
+                        tmpl.ExecuteTemplate(w, "file-table", struct{Files []DirEntry}{entries})
+
+                        // close prompt
+                        w.Write([]byte(`<div id="pop-window"></div>`))
+
+                        // print messages
+                        w.Write([]byte(`<div id="messages">`))
+                        w.Write([]byte("<p>renamed " + reply.Name + " to " + newname))
+                        w.Write([]byte(`</div>`))
+                        return
+                    }
+                    // TODO: change this,
+                    // we don't want to expose the path to the user
+                    reply.Message = err.Error()
+                }
+            }
+            tmpl.ExecuteTemplate(w, "rename", reply)
         }
     }
 }
-

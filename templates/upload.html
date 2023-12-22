@@ -44,11 +44,7 @@
     <div id="update-progress">
         {{template "progress" .}}
     </div>
-    <table>
-        <tbody id="directory">
-            {{template "files" .}}
-        </tbody>
-    </table>
+    {{template "file-table" .}}
 </div>
 <div id="extra"></div>
 {{end}}
@@ -76,7 +72,26 @@ htmx.on("#main-form", "htmx:xhr:loadend", function(evt) {
 </script>
 {{end}}
 
-{{define "files"}}
+{{define "messages"}}
+{{range .Messages}}
+<div class="message-box" id="messages">
+    <p>{{.}}
+</div>
+{{end}}
+{{end}}
+
+{{define "file-table"}}
+<div id="file-browser">
+    <table>
+        <tbody id="file-tbody">
+            {{template "file-elements" .}}
+        </tbody>
+    </table>
+</div>
+{{end}}
+
+{{define "file-elements"}}
+
 {{range .Files}}
 <tr id="{{.Name}}"
     class="{{.Name}}"
@@ -113,15 +128,21 @@ htmx.on("#main-form", "htmx:xhr:loadend", function(evt) {
         hx-target="#extra"
         hx-select-oob="#messages:innerHTML"
     >
-
+        <input type="hidden" name="rename" value="{{.Name}}" \>
         <div class="file-input">
-            <label for="name">Rename the file</label>
-            <input type="text" name="name" value="{{.Name}}" />
+            <input type="text" id="newname" name="newname" value="{{.Name}}" />
+            <label for="newname">Rename the file</label>
         </div>
         <button>Submit</button>
     </form>
-    <button class="pop-close"
-        hx-target="#extra"
+    <div id="reply">
+        {{.Message}}
+    </div>
+    <button
+        class="pop-close"
+        hx-target="#pop-window"
+        hx-swap="delete"
+        hx-post=""
     >×</button>
 </div>
 {{end}}
