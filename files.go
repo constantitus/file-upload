@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"os"
 	"strconv"
+	"time"
 )
 
 
@@ -74,7 +75,7 @@ func storeFile(header *multipart.FileHeader, out os.File) (int64, error) {
 type DirEntry struct {
     Name string
     Size string
-    Date int
+    Date string
 }
 func ReadUserDir(username string) []DirEntry {
     var entries []DirEntry
@@ -95,6 +96,7 @@ func ReadUserDir(username string) []DirEntry {
         entries = append(entries, DirEntry{
             Name: entry.Name(),
             Size: sizeItoa(info.Size()),
+            Date: parseDate(info.ModTime()),
         })
     }
     return entries
@@ -112,5 +114,25 @@ func sizeItoa(size int64) (out string) {
         return strconv.Itoa(i) + "KB"
     } else {
         return strconv.Itoa(in) + "B"
+    }
+}
+
+func parseDate(d time.Time) string {
+    if since := time.Since(d); since < 24 * time.Hour {
+        since = since.Round(time.Second)
+        if since < 1 { return "now" }
+        if since < time.Minute {
+            return fmt.Sprintf("%02d sec ago", since / time.Second)
+        }
+        if since < time.Hour {
+            return fmt.Sprintf("%02d min ago", since / time.Minute)
+        }
+        return fmt.Sprintf("%02d hr ago", since / time.Hour)
+    }
+    mon := d.Month().String()[:3]
+    if d.Year() == time.Now().Year() {
+        return fmt.Sprintf("%d %s", d.Day(), mon)
+    } else {
+        return fmt.Sprintf("%s %d", mon, d.Year())
     }
 }
