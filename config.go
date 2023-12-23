@@ -93,10 +93,10 @@ func ParseConfig() {
 func sizeAtoi(in any) int64 {
     var s string
     switch in.(type) {
-        case string:
+    case string:
         s = in.(string)
-        case int: return int64(in.(int))
-        default: return int64(0)
+    case int: return int64(in.(int))
+    default: return int64(0)
     }
 
     suffixes := []string{"gb", "mb", "kb", "b"}
@@ -106,13 +106,13 @@ func sizeAtoi(in any) int64 {
         if s, found := strings.CutSuffix(s, suf); found {
             if i, err := strconv.Atoi(s); err == nil {
                 switch suf {
-                    case "gb":
+                case "gb":
                     return int64(i << 30)
-                    case "mb":
+                case "mb":
                     return int64(i << 20)
-                    case "kb":
+                case "kb":
                     return int64(i << 10)
-                    case "b":
+                case "b":
                     return int64(i)
                 }
             }
@@ -128,10 +128,10 @@ func sizeAtoi(in any) int64 {
 func parseTime(in any) time.Duration {
     var s string
     switch in.(type) {
-        case string:
+    case string:
         s = in.(string)
-        case int: return time.Duration(in.(int))
-        default: return time.Duration(0)
+    case int: return time.Duration(in.(int))
+    default: return time.Duration(0)
     }
 
 
@@ -142,11 +142,11 @@ func parseTime(in any) time.Duration {
         if s, found := strings.CutSuffix(s, suf); found {
             if i, err := strconv.Atoi(s); err == nil {
                 switch suf {
-                    case "h":
+                case "h":
                     return time.Duration(i) * time.Hour
-                    case "m":
+                case "m":
                     return time.Duration(i) * time.Minute
-                    case "s":
+                case "s":
                     return time.Duration(i) * time.Second
                 }
             }

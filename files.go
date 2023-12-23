@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -138,11 +139,37 @@ func parseDate(d time.Time) string {
 }
 
 
-func TryRename(user string, old string, newname string) error {
-    // TODO: sanitize username
-    // don't return the &LinkerError
-    return os.Rename(
+func TryRename(user string, old string, newname string) (bool, string) {
+    if sanitize(old) {
+        return false, `Illegal character`
+    }
+    if sanitize(newname) {
+        return false, "Illegal character"
+    }
+
+    err := os.Rename(
         Config.StoragePath + "/" + user + "/" + old,
         Config.StoragePath + "/" + user + "/" + newname,
         )
+    if err != nil {
+        return false, "Internal Error"
+    }
+    return true, ""
+}
+
+func TryRemove(user string, filename string) (bool, string) {
+    if sanitize(filename) {
+        return false, "Illegal Character"
+    }
+
+    err := os.Remove( Config.StoragePath + "/" + user + "/" + filename,)
+    if err != nil {
+        return false, "Internal Error"
+    }
+    return true, ""
+
+}
+
+func sanitize(filename string) bool {
+    return strings.ContainsRune(filename, '/')
 }

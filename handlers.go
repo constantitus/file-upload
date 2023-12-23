@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -174,70 +173,89 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
         return
     }
-
     user := FromCookie(r)
     if user.Name == "" {
         return
     }
 
-    params := []string{"download", "delete", "rename"}
-    for _, param := range params {
-        val := r.PostFormValue(param)
-        if val == "" {
-            continue
+    option := r.PostFormValue("option")
+    entry := r.PostFormValue("entry")
+    if entry == "" || option == "" {
+        return // neither should be empty
+    }
+
+    switch option {
+    case "download":
+        uuid, err := r.Cookie("uuid")
+        if err != nil {
+            return
         }
-        switch param {
-            case "download":
-            uuid, err := r.Cookie("uuid")
-            if err != nil {
+        w.Header().Set(
+            "HX-Redirect",
+            fmt.Sprintf("/files?uuid=%s&download=%s", uuid.Value, entry),
+            )
+        return
+
+    case "delete":
+        reply := struct {
+            Name string;
+            Message string;
+        }{}
+        if delete := r.PostFormValue("delete"); delete == "yes" {
+            // delete
+            success, msg := TryRemove(user.Name, entry)
+            if success {
+            w.Header().Set("HX-Reswap", "multi:#file-browser:outerHTML,#pop-window:delete,#messages:innerHTML")
+
+            // update table
+            entries := ReadUserDir(user.Name)
+            tmpl.ExecuteTemplate(w, "file-table", struct{Files []DirEntry}{entries})
+
+            // close prompt
+            w.Write([]byte(`<div id="pop-window"></div>`))
+
+            // print messages
+            w.Write([]byte(`<div id="messages">`))
+            w.Write([]byte("<p>deleted " + entry))
+            w.Write([]byte(`</div>`))
+            return
+            }
+            reply.Message = msg
+        }
+        reply.Name = entry
+        tmpl.ExecuteTemplate(w, "delete", struct{Name string}{entry}) // pass entry
+
+    case "rename":
+        reply := struct{
+            Name string;
+            NewName string; // keep value
+            Message string;
+        }{}
+        if newname := r.PostFormValue("newname"); newname != "" {
+            success, msg := TryRename(user.Name, entry, newname)
+            if success {
+                // todo: make this cleaner
+                w.Header().Set("HX-Reswap", "multi:#file-browser:outerHTML,#pop-window:delete,#messages:innerHTML")
+
+                // update table
+                entries := ReadUserDir(user.Name)
+                tmpl.ExecuteTemplate(w, "file-table", struct{Files []DirEntry}{entries})
+
+                // close prompt
+                w.Write([]byte(`<div id="pop-window"></div>`))
+
+                // print messages
+                w.Write([]byte(`<div id="messages">`))
+                w.Write([]byte("<p>renamed " + entry + " to " + newname))
+                w.Write([]byte(`</div>`))
                 return
             }
-            w.Header().Set(
-                "HX-Redirect",
-                fmt.Sprintf("/files?uuid=%s&download=%s", uuid.Value, val),
-                )
-            return
-
-            case "delete":
-            // TODO: handle delete
-
-            case "rename":
-            reply := struct{
-                Name string;
-                Message string;
-            }{}
-            reply.Name = r.PostFormValue("rename")
-            if reply.Name == "" {
-                return // This should always have a value
-            }
-            if newname := r.PostFormValue("newname"); newname != "" {
-                if strings.ContainsRune(reply.Name, '/') {
-                    reply.Message = `Illegal character "/"`
-                } else {
-                    err := TryRename(user.Name, reply.Name, newname)
-                    if err == nil {
-                        // todo: make this cleaner
-                        w.Header().Set("HX-Reswap", "multi:#file-browser:outerHTML,#pop-window:delete")
-
-                        // update table
-                        entries := ReadUserDir(user.Name)
-                        tmpl.ExecuteTemplate(w, "file-table", struct{Files []DirEntry}{entries})
-
-                        // close prompt
-                        w.Write([]byte(`<div id="pop-window"></div>`))
-
-                        // print messages
-                        w.Write([]byte(`<div id="messages">`))
-                        w.Write([]byte("<p>renamed " + reply.Name + " to " + newname))
-                        w.Write([]byte(`</div>`))
-                        return
-                    }
-                    // TODO: change this,
-                    // we don't want to expose the path to the user
-                    reply.Message = err.Error()
-                }
-            }
-            tmpl.ExecuteTemplate(w, "rename", reply)
+            reply.Message = msg
+            reply.NewName = newname
+        } else {
+            reply.NewName = entry
         }
+        reply.Name = entry
+        tmpl.ExecuteTemplate(w, "rename", reply)
     }
 }
