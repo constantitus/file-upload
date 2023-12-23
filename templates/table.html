@@ -57,6 +57,12 @@
 {{end}}
 
 {{define "rename"}}
+<button
+    class="pop-close"
+    hx-target="#extra"
+    hx-post="/files"
+    hx-trigger="click, keyup[key=='Escape'] from:body"
+>×</button>
 <div id="pop-window" class="small-box box pop-window">
     <form
         id="rename-form"
@@ -70,21 +76,26 @@
                 name="newname" value="{{.NewName}}" autofocus/>
             <label for="newname">Rename the file</label>
         </div>
-        <button id="submit" hx-post="/files">Rename</button>
+        <button id="submit">Rename</button>
     </form>
+    <button
+        hx-target="#extra"
+        hx-post="/files"
+    >cancel</button>
     <div id="reply">
         {{.Message}}
     </div>
-    <button
-        class="pop-close"
-        hx-target="#pop-window"
-        hx-swap="delete"
-        hx-post=""
-    >×</button>
 </div>
 {{end}}
 
+
 {{define "delete"}}
+<button
+    class="pop-close"
+    hx-target="#extra"
+    hx-post="/files"
+    hx-trigger="click, keyup[key=='Escape'] from:body"
+>×</button>
 <div id="pop-window" class="small-box box pop-window">
     <form
         id="delete-form"
@@ -102,26 +113,14 @@
             hx-post="/files"
             autofocus
         >yes</button>
-        <button
-            hx-target="#pop-window"
-            hx-swap="delete"
-            hx-post=""
-        >cancel</button>
     </form>
     <button
-        class="pop-close"
-        hx-target="#pop-window"
-        hx-swap="delete"
-        hx-post=""
-    >×</button>
+        form="none"
+        hx-target="#extra"
+        hx-post="/files"
+    >cancel</button>
     <div id="reply">
         {{.Message}}
     </div>
-    <button
-        class="pop-close"
-        hx-target="#pop-window"
-        hx-swap="delete"
-        hx-post=""
-    >×</button>
 </div>
 {{end}}

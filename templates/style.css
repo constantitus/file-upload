@@ -196,6 +196,21 @@ progress::-webkit-progress-value { background: #742ECC; }
     border-color: #742ECC;
 }
 
+.pop-close {
+    position: fixed;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+.pop-window {
+    z-index: 1;
+}
+
 /* .progress { */
 /*     height: 20px; */
 /*     margin-bottom: 20px; */

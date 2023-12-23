@@ -235,7 +235,7 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
 
 func onSuccess(w http.ResponseWriter, msg string, username string) {
     w.Header().Set("HX-Reswap",
-        "multi:#file-browser:outerHTML,#pop-window:delete,#messages:innerHTML",
+        "multi:#file-browser:outerHTML,#extra:innerHTML,#messages:innerHTML",
         )
 
     // update table
@@ -243,7 +243,7 @@ func onSuccess(w http.ResponseWriter, msg string, username string) {
     tmpl.ExecuteTemplate(w, "file-table", struct{Files []DirEntry}{entries})
 
     // close prompt
-    w.Write([]byte(`<div id="pop-window"></div>`))
+    w.Write([]byte(`<div id="extra"></div>`))
 
     // print messages
     tmpl.ExecuteTemplate(w, "message", msg)
