@@ -19,16 +19,16 @@ func InitDB() {
     }
 
     // users table
-    statement, err := Database.Prepare(
-        "CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT, rank INTEGER DEFAULT 0)")
+    statement, err := Database.Prepare( `CREATE TABLE IF NOT EXISTS users` +
+        `(username TEXT PRIMARY KEY, password TEXT, rank INTEGER DEFAULT 0)`)
     if err != nil {
         log.Panic(err)
     }
     statement.Exec()
 
     // cache table
-    statement, err = Database.Prepare(
-        "CREATE TABLE IF NOT EXISTS cache (uuid TEXT PRIMARY KEY, user TEXT, rank INTEGER, expire INTEGER)")
+    statement, err = Database.Prepare( `CREATE TABLE IF NOT EXISTS cache` +
+        `(uuid TEXT PRIMARY KEY, user TEXT, rank INTEGER, expire INTEGER)`)
     if err != nil {
         log.Panic(err)
     }
@@ -38,7 +38,7 @@ func InitDB() {
 // Query the database for username
 func QueryDB(username string) (hash string, admin bool) {
     rows, _ := Database.Query(
-        "SELECT password, rank FROM users WHERE username = ?", username)
+        `SELECT password, rank FROM users WHERE username = ?`, username)
     defer rows.Close()
 
     if rows.Next() {
@@ -60,7 +60,8 @@ func StoreCacheDB() {
 }
 
 func addCacheDB(uuid string, data UserData, exp int64) {
-    _, err := Database.Exec("INSERT INTO cache VALUES (?,?,?,?)", uuid, data.Name, data.Rank, int(exp))
+    _, err := Database.Exec("INSERT INTO cache VALUES (?,?,?,?)",
+        uuid, data.Name, data.Rank, int(exp))
     if err != nil {
         log.Println(err)
     }
@@ -69,7 +70,8 @@ func addCacheDB(uuid string, data UserData, exp int64) {
 
 func ParseCacheDB() {
     // Clear old entries
-    _, err := Database.Exec("DELETE FROM cache WHERE expire < ?", time.Now().UnixNano())
+    _, err := Database.Exec("DELETE FROM cache WHERE expire < ?",
+        time.Now().UnixNano())
     if err != nil {
         log.Println(err)
     }

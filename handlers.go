@@ -14,6 +14,7 @@ func init() {
         "templates/index.html",
         "templates/login.html",
         "templates/upload.html",
+        "templates/table.html",
         ))
 }
 
@@ -184,6 +185,12 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
         return // neither should be empty
     }
 
+
+    reply := struct {
+        Name string;
+        Message string;
+        NewName string; // keep value for rename
+    }{}
     switch option {
     case "download":
         uuid, err := r.Cookie("uuid")
@@ -197,65 +204,47 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
         return
 
     case "delete":
-        reply := struct {
-            Name string;
-            Message string;
-        }{}
         if delete := r.PostFormValue("delete"); delete == "yes" {
             // delete
             success, msg := TryRemove(user.Name, entry)
             if success {
-            w.Header().Set("HX-Reswap", "multi:#file-browser:outerHTML,#pop-window:delete,#messages:innerHTML")
-
-            // update table
-            entries := ReadUserDir(user.Name)
-            tmpl.ExecuteTemplate(w, "file-table", struct{Files []DirEntry}{entries})
-
-            // close prompt
-            w.Write([]byte(`<div id="pop-window"></div>`))
-
-            // print messages
-            w.Write([]byte(`<div id="messages">`))
-            w.Write([]byte("<p>deleted " + entry))
-            w.Write([]byte(`</div>`))
-            return
+                onSuccess(w, msg, user.Name)
+                return
             }
             reply.Message = msg
         }
         reply.Name = entry
-        tmpl.ExecuteTemplate(w, "delete", struct{Name string}{entry}) // pass entry
+        tmpl.ExecuteTemplate(w, "delete", struct{Name string}{entry})
 
     case "rename":
-        reply := struct{
-            Name string;
-            NewName string; // keep value
-            Message string;
-        }{}
-        if newname := r.PostFormValue("newname"); newname != "" {
-            success, msg := TryRename(user.Name, entry, newname)
+        reply.NewName = r.PostFormValue("newname")
+        if reply.NewName != "" {
+            success, msg := TryRename(user.Name, entry, reply.NewName)
             if success {
-                // todo: make this cleaner
-                w.Header().Set("HX-Reswap", "multi:#file-browser:outerHTML,#pop-window:delete,#messages:innerHTML")
-
-                // update table
-                entries := ReadUserDir(user.Name)
-                tmpl.ExecuteTemplate(w, "file-table", struct{Files []DirEntry}{entries})
-
-                // close prompt
-                w.Write([]byte(`<div id="pop-window"></div>`))
-
-                // print messages
-                w.Write([]byte(`<div id="messages">`))
-                w.Write([]byte("<p>renamed " + entry + " to " + newname))
-                w.Write([]byte(`</div>`))
+                onSuccess(w, msg, user.Name)
                 return
             }
             reply.Message = msg
-            reply.NewName = newname
         } else {
             reply.NewName = entry
         }
         reply.Name = entry
         tmpl.ExecuteTemplate(w, "rename", reply)
     }
+}
+
+func onSuccess(w http.ResponseWriter, msg string, username string) {
+    w.Header().Set("HX-Reswap",
+        "multi:#file-browser:outerHTML,#pop-window:delete,#messages:innerHTML",
+        )
+
+    // update table
+    entries := ReadUserDir(username)
+    tmpl.ExecuteTemplate(w, "file-table", struct{Files []DirEntry}{entries})
+
+    // close prompt
+    w.Write([]byte(`<div id="pop-window"></div>`))
+
+    // print messages
+    tmpl.ExecuteTemplate(w, "message", msg)
 }

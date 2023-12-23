@@ -47,8 +47,14 @@ func HandleFiles(form *UploadData, headers []*multipart.FileHeader) {
             }
 
             var msg string
-            if out_stat.Size() > 0 && form.Overwrite { msg = "over" } // "overwritten"
-            msg += fmt.Sprintf("written %s (%s)", header.Filename, sizeItoa(written))
+            if out_stat.Size() > 0 && form.Overwrite {
+                msg = "over" // "overwritten"
+            }
+            msg += fmt.Sprintf(
+                "written %s (%s)",
+                header.Filename,
+                sizeItoa(written),
+                )
             form.Messages = append(form.Messages, msg)
             continue
         }
@@ -154,7 +160,7 @@ func TryRename(user string, old string, newname string) (bool, string) {
     if err != nil {
         return false, "Internal Error"
     }
-    return true, ""
+    return true, "renamed " + old + " to " + newname
 }
 
 func TryRemove(user string, filename string) (bool, string) {
@@ -166,7 +172,7 @@ func TryRemove(user string, filename string) (bool, string) {
     if err != nil {
         return false, "Internal Error"
     }
-    return true, ""
+    return true, "deleted " + filename
 
 }
 

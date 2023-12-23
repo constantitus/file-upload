@@ -8,7 +8,9 @@
     </head>
     <body hx-boost="true" hx-ext="multi-swap">
         <div id="main" class="container">
-            {{if .Logged}}{{template "upload" .}}{{else}}{{template "login" .}}{{end}}
+            {{if .Logged}}{{template "upload" .}}
+            {{else}}{{template "login" .}}
+            {{end}}
         </div>
     </body>
 </html>
