@@ -1,5 +1,5 @@
 {{define "file-table"}}
-<div id="file-browser">
+<div id="file-browser" class="file-browser">
     <table>
         <tbody id="file-tbody">
             {{template "file-elements" .}}
@@ -16,8 +16,8 @@
     <td>{{.Name}}</td>
     <td>{{.Size}}</td>
     <td>{{.Date}}</td>
-    <td>
-        <form
+    <td class="td-button">
+        <form style="margin:0"
             id="download"
             hx-post="/files"
             hx-target="#extra"
@@ -25,11 +25,11 @@
         >
             <input type="hidden" name="entry" value="{{.Name}}" />
             <input type="hidden" name="option" value="download" />
-            <button>download</button>
+            <button class="button">download</button>
         </form>
     </td>
-    <td>
-        <form
+    <td class="td-button">
+        <form style="margin:0"
             id="delete"
             hx-post="/files"
             hx-target="#extra"
@@ -37,11 +37,11 @@
         >
             <input type="hidden" name="entry" value="{{.Name}}" />
             <input type="hidden" name="option" value="delete" />
-            <button>delete</button>
+            <button class="button">delete</button>
         </form>
     </td>
-    <td>
-        <form
+    <td class="td-button">
+        <form style="margin:0"
             id="rename"
             hx-post="/files"
             hx-target="#extra"
@@ -49,7 +49,7 @@
         >
             <input type="hidden" name="entry" value="{{.Name}}" />
             <input type="hidden" name="option" value="rename" />
-            <button>rename</button>
+            <button class="button">rename</button>
         </form>
     </td>
 </tr>
@@ -63,27 +63,31 @@
     hx-post="/files"
     hx-trigger="click, keyup[key=='Escape'] from:body"
 >×</button>
-<div id="pop-window" class="small-box box pop-window">
-    <form
-        id="rename-form"
-        hx-post="/files"
-        hx-target="#extra"
-    >
-        <input type="hidden" name="option" value="rename" \>
-        <input type="hidden" name="entry" value="{{.Name}}" \>
-        <div class="file-input">
-            <input type="text" id="newname"
-                name="newname" value="{{.NewName}}" autofocus/>
-            <label for="newname">Rename the file</label>
+<div id="pop-window" class="pop-window">
+    <div class="box small-box">
+        <form
+            id="rename-form"
+            hx-post="/files"
+            hx-target="#extra"
+        >
+            <input type="hidden" name="option" value="rename" \>
+            <input type="hidden" name="entry" value="{{.Name}}" \>
+            <div class="file-input">
+                <label for="newname">Rename the file</label>
+                <p><input type="text" id="newname"
+                    name="newname" value="{{.NewName}}" autofocus/>
+            </div>
+        </form>
+        <div class="pop-buttons">
+            <button form="rename-form" class="button" id="submit">Rename</button>
+            <button class="button"
+                hx-target="#extra"
+                hx-post="/files"
+            >cancel</button>
         </div>
-        <button id="submit">Rename</button>
-    </form>
-    <button
-        hx-target="#extra"
-        hx-post="/files"
-    >cancel</button>
-    <div id="reply">
-        {{.Message}}
+        <div id="reply">
+            {{.Message}}
+        </div>
     </div>
 </div>
 {{end}}
@@ -96,31 +100,36 @@
     hx-post="/files"
     hx-trigger="click, keyup[key=='Escape'] from:body"
 >×</button>
-<div id="pop-window" class="small-box box pop-window">
-    <form
-        id="delete-form"
-        hx-post="/files"
-        hx-target="#extra"
-    >
-        <input type="hidden" name="entry" value="{{.Name}}" />
-        <input type="hidden" name="option" value="delete" />
-        <input type="hidden" name="delete" value="yes" />
-        <div class="delete-prompt">
-            <label>Are you sure ?</label>
-        </div>
-        <button
-            id="submit"
+<div id="pop-window" class="pop-window">
+    <div class="box small-box">
+        <form
+            id="delete-form"
             hx-post="/files"
-            autofocus
-        >yes</button>
-    </form>
-    <button
-        form="none"
-        hx-target="#extra"
-        hx-post="/files"
-    >cancel</button>
-    <div id="reply">
-        {{.Message}}
+            hx-target="#extra"
+        >
+            <input type="hidden" name="entry" value="{{.Name}}" />
+            <input type="hidden" name="option" value="delete" />
+            <input type="hidden" name="delete" value="yes" />
+            <div class="delete-prompt">
+                <p>Delete {{.Name}} ?
+            </div>
+        </form>
+        <div class="pop-buttons">
+            <button class="button"
+                id="submit"
+                form="delete-form"
+                hx-post="/files"
+                autofocus
+            >yes</button>
+            <button class="button"
+                form="none"
+                hx-target="#extra"
+                hx-post="/files"
+            >cancel</button>
+        </div>
+        <div id="reply">
+            {{.Message}}
+        </div>
     </div>
 </div>
 {{end}}

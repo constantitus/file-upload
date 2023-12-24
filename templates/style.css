@@ -67,6 +67,7 @@ a, a:hover, a:visited, a:active {
     width: 100%;
     box-sizing: border-box;
     padding: 10px;
+    padding-bottom: 4px;
 }
 
 .upload-form form {
@@ -90,10 +91,15 @@ a, a:hover, a:visited, a:active {
     margin: 10px auto;
     padding: 15px;
 }
-.small-box .button {
+.small-box .big-button {
     min-width: 300px;
     padding: 15px;
     margin-top: 20px;
+}
+
+.file-browser {
+    padding: 10px;
+    padding-top: 4px
 }
 
 .box input:focus,.box input:active,.box button:focus,.box button:active{
@@ -114,18 +120,32 @@ progress::-webkit-progress-value { background: #742ECC; }
     height: 6px;
 }
 
-.box .button {
-    background: #742ECC;
-    border: 0;
-    color: #fff;
-    padding: 10px;
-    font-size: 20px;
-    width: 200px;
-    display: block;
-    cursor: pointer;
+.box table {
+    width: 100%;
 }
 
-.button .upload {
+.td-button {
+    width: 90px;
+}
+.td-button .button {
+    width: 90px;
+}
+
+.box .button {
+    background: #742ECC;
+    display: block;
+    cursor: pointer;
+    color: #fff;
+    border: 0;
+}
+
+.box .big-button {
+    font-size: 20px;
+    width: 200px;
+    padding: 10px;
+}
+
+.big-button .upload {
     margin-left: 8px;
 }
 
@@ -176,6 +196,11 @@ progress::-webkit-progress-value { background: #742ECC; }
     transition: .1s;
     border-color: #fff;
 }
+
+.message-box {
+    overflow: auto;
+}
+
 .check-box label:active::before {
     transform: scale(0.8);
     border-color: #fff;
@@ -208,7 +233,26 @@ progress::-webkit-progress-value { background: #742ECC; }
 }
 
 .pop-window {
+    position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(#000, 0.25);
     z-index: 1;
+    position: absolute;
+    padding: 10px;
+}
+
+.pop-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.extra {
 }
 
 /* .progress { */
