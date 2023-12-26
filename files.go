@@ -15,10 +15,15 @@ import (
 func HandleFiles(form *UploadData, headers []*multipart.FileHeader) {
     // Parse files
     for _, header := range headers {
-        // TODO: limit f.Size()
+        filename := header.Filename
 
-        if header.Filename == "" {
+        if filename == "" {
             form.Messages = append(form.Messages, "No file selected")
+            continue
+        }
+
+        if header.Size > Config.FilesizeMax {
+            form.Messages = append(form.Messages, "file too large: " + filename)
             continue
         }
 
@@ -26,40 +31,41 @@ func HandleFiles(form *UploadData, headers []*multipart.FileHeader) {
         os.MkdirAll(Config.StoragePath + "/" + form.User, os.ModePerm)
 
         out, err := os.OpenFile(
-            Config.StoragePath + "/" + form.User + "/" + header.Filename,
+            Config.StoragePath + "/" + form.User + "/" + filename,
             os.O_RDWR|os.O_CREATE,
             0644)
         defer out.Close()
         if err != nil {
-            form.Messages = append(form.Messages, err.Error())
+            log.Println(err)
+            form.Messages = append(form.Messages, "internal error " + filename)
             continue
         }
 
-        // 
         out_stat, err := out.Stat()
         if err != nil { /* why would this even error */ }
 
         if out_stat.Size() == 0 || form.Overwrite {
             written, err := storeFile(header, *out)
             if err != nil {
-                form.Messages = append(form.Messages, err.Error())
+                log.Println(err)
+                form.Messages = append(form.Messages, "internal error " + filename)
                 continue
             }
 
             var msg string
             if out_stat.Size() > 0 && form.Overwrite {
-                msg = "over" // "overwritten"
+                msg = "over" // "over" + "written", duh
             }
             msg += fmt.Sprintf(
                 "written %s (%s)",
-                header.Filename,
+                filename,
                 sizeItoa(written),
                 )
             form.Messages = append(form.Messages, msg)
             continue
         }
         form.Messages = append(
-            form.Messages, "File already exists: " + header.Filename)
+            form.Messages, "File already exists: " + filename)
     }
 }
 // The actual reading and writing
@@ -73,9 +79,8 @@ func storeFile(header *multipart.FileHeader, out os.File) (int64, error) {
     out_size, err := io.Copy(&out, file)
     if err != nil {
         return 0, err
-    } else {
-        return out_size, nil
     }
+    return out_size, nil
 }
 
 
