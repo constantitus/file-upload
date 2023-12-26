@@ -1,6 +1,15 @@
 {{define "file-table"}}
 <div id="file-browser" class="file-browser">
     <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Date</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
         <tbody id="file-tbody">
             {{template "file-elements" .}}
         </tbody>
@@ -13,10 +22,7 @@
 <tr id="{{.Name}}"
     class="{{.Name}}"
 >
-    <td>{{.Name}}</td>
-    <td>{{.Size}}</td>
-    <td>{{.Date}}</td>
-    <td class="td-button">
+    <td class="td-title">
         <form style="margin:0"
             id="download"
             hx-post="/files"
@@ -25,9 +31,11 @@
         >
             <input type="hidden" name="entry" value="{{.Name}}" />
             <input type="hidden" name="option" value="download" />
-            <button class="button">download</button>
+            <button class="file-name">{{.Name}}</button>
         </form>
     </td>
+    <td>{{.Size}}</td>
+    <td>{{.Date}}</td>
     <td class="td-button">
         <form style="margin:0"
             id="delete"

@@ -25,7 +25,7 @@ a, a:hover, a:visited, a:active {
     margin: auto;
     margin-top: 10px;
     margin-bottom: 15px;
-    max-width: 1200px;
+    max-width: 1000px;
     clear: both;
     display: flex;
     flex-wrap: wrap;
@@ -99,7 +99,27 @@ a, a:hover, a:visited, a:active {
 
 .file-browser {
     padding: 10px;
-    padding-top: 4px
+    padding-top: 4px;
+}
+
+.file-browser td, th {
+    padding: 8px;
+}
+
+.file-browser tr:nth-child(even) {
+    background-color: rgba(255,255,255,0.02);
+}
+
+.file-browser tr:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.file-browser th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #8a85ab;
+    color: white;
 }
 
 .box input:focus,.box input:active,.box button:focus,.box button:active{
@@ -122,6 +142,18 @@ progress::-webkit-progress-value { background: #742ECC; }
 
 .box table {
     width: 100%;
+}
+
+.td-title {
+    
+    max-width: 60%;
+}
+
+.file-name {
+    color: #fff;
+    background: none;
+    border: none;
+    text-align: left;
 }
 
 .td-button {
