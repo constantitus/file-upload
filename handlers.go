@@ -148,12 +148,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
     tmpl.ExecuteTemplate(w, "file-table", struct{Files []DirEntry}{entries})
 
     // Print messages
-    w.Write([]byte(`<div id="messages">`))
-    for _, msg := range form.Messages {
-        w.Write([]byte(`
-    <p>` + msg))
-    }
-    w.Write([]byte(`</div>`))
+    tmpl.ExecuteTemplate(w, "messages", form.Messages)
 }
 
 

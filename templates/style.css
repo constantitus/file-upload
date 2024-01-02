@@ -145,7 +145,6 @@ progress::-webkit-progress-value { background: #742ECC; }
 }
 
 .td-title {
-    
     max-width: 60%;
 }
 
@@ -156,11 +155,16 @@ progress::-webkit-progress-value { background: #742ECC; }
     text-align: left;
 }
 
-.td-button {
-    width: 90px;
+.td-buttons {
+    display: flex;
 }
-.td-button .button {
+
+.td-buttons button {
     width: 90px;
+    cursor: pointer;
+    color: #fff;
+    background: none;
+    border: 0;
 }
 
 .box .button {

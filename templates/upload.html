@@ -72,10 +72,14 @@ htmx.on("#main-form", "htmx:xhr:loadend", function(evt) {
 {{end}}
 
 {{define "messages"}}
-{{range .}}
-{{template "message" .}}
+<div class="message-box" id="messages">
+    {{range .}}
+    {{template "msg" .}}
+    {{end}}
+</div>
 {{end}}
-{{end}}
+
+{{define "msg"}}<p>{{.}}{{end}}
 
 {{define "message"}}
 <div class="message-box" id="messages">

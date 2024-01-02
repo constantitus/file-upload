@@ -7,7 +7,6 @@
                 <th>Size</th>
                 <th>Date</th>
                 <th></th>
-                <th></th>
             </tr>
         </thead>
         <tbody id="file-tbody">
@@ -36,8 +35,8 @@
     </td>
     <td>{{.Size}}</td>
     <td>{{.Date}}</td>
-    <td class="td-button">
-        <form style="margin:0"
+    <td class="td-buttons">
+        <form
             id="delete"
             hx-post="/files"
             hx-target="#extra"
@@ -45,11 +44,9 @@
         >
             <input type="hidden" name="entry" value="{{.Name}}" />
             <input type="hidden" name="option" value="delete" />
-            <button class="button">delete</button>
+            <button title="delete">delete</button>
         </form>
-    </td>
-    <td class="td-button">
-        <form style="margin:0"
+        <form
             id="rename"
             hx-post="/files"
             hx-target="#extra"
@@ -57,7 +54,7 @@
         >
             <input type="hidden" name="entry" value="{{.Name}}" />
             <input type="hidden" name="option" value="rename" />
-            <button class="button">rename</button>
+            <button title="rename">rename</button>
         </form>
     </td>
 </tr>
