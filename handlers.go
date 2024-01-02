@@ -30,7 +30,6 @@ func MainHandler(w http.ResponseWriter, r *http.Request) {
         args.Logged = true
         args.Files = ReadUserDir(data.Name)
     }
-    w.Write([]byte(Style))
     tmpl.ExecuteTemplate(w, "base", args)
 }
 

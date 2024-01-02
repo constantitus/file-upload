@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -17,7 +16,6 @@ var(
     Config = struct{
         StoragePath string
         DatabasePath string
-        CSS string
         UuidDefTTL time.Duration
         UuidLongTTL time.Duration
         LoginCooldown time.Duration
@@ -29,7 +27,6 @@ var(
     }{ // defaults
         "./",
         "./database.db",
-        "style.css",
         time.Duration(2),
         time.Duration(24),
         time.Duration(5),
@@ -52,7 +49,6 @@ func ParseConfig() {
     settings := struct {
         Storage_path string
         Database_path string
-        CSS string
         UUID_def_ttl any
         UUID_long_ttl any
         Login_cooldown any
@@ -74,7 +70,6 @@ func ParseConfig() {
         Config.StoragePath = settings.Storage_path
     }
     Config.DatabasePath = settings.Database_path
-    Config.CSS = settings.CSS
     Config.UuidDefTTL = parseTime(settings.UUID_def_ttl)
     Config.UuidLongTTL = parseTime(settings.UUID_long_ttl)
     Config.LoginCooldown = parseTime(settings.Login_cooldown)
@@ -83,11 +78,6 @@ func ParseConfig() {
     Config.RateBursts = settings.Rate_bursts
     Config.RateCooldown = parseTime(settings.Rate_cooldown)
     Config.FilesizeMax = sizeAtoi(settings.Filesize_max)
-
-    Style = []byte("<style>")
-    css, _ := os.ReadFile(Config.CSS)
-    Style = append(Style, css...)
-    Style = append(Style, []byte("</style>")...)
 }
 
 func sizeAtoi(in any) int64 {

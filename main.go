@@ -36,6 +36,10 @@ func main() {
     mux.Handle("/upload",  RateLimit(UploadHandler))
     mux.Handle("/login",   RateLimit(LoginHandler))
     mux.Handle("/files",   RateLimit(FileHandler))
+    // serve static files
+    mux.Handle("/static/",
+        http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+
     server := http.Server{
         Addr:         port,
         Handler:      mux,
