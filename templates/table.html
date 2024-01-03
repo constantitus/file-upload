@@ -62,13 +62,13 @@
 {{end}}
 
 {{define "rename"}}
-<button
-    class="pop-close"
-    hx-target="#extra"
-    hx-post="/files"
-    hx-trigger="click, keyup[key=='Escape'] from:body"
->×</button>
 <div id="pop-window" class="pop-window">
+    <button
+        class="pop-close"
+        hx-target="#extra"
+        hx-post="/files"
+        hx-trigger="click, keyup[key=='Escape'] from:body"
+    ></button>
     <div class="box small-box">
         <form
             id="rename-form"
@@ -99,13 +99,13 @@
 
 
 {{define "delete"}}
-<button
-    class="pop-close"
-    hx-target="#extra"
-    hx-post="/files"
-    hx-trigger="click, keyup[key=='Escape'] from:body"
->×</button>
 <div id="pop-window" class="pop-window">
+    <button
+        class="pop-close"
+        hx-target="#extra"
+        hx-post="/files"
+        hx-trigger="click, keyup[key=='Escape'] from:body"
+    ></button>
     <div class="box small-box">
         <form
             id="delete-form"
