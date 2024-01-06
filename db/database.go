@@ -54,11 +54,11 @@ func Query(username string) (hash string, admin bool) {
 
 
 func StoreCache() {
-    cache.UUID.DeleteExpired()
-    for _, uuid := range cache.UUID.Keys() {
-        data, got := cache.UUID.Get(uuid)
+    cache.DeleteExpired()
+    for _, uuid := range cache.Keys() {
+        data, got := cache.Get(uuid)
         if got {
-            exp, _ := cache.UUID.GetExp(uuid)
+            exp, _ := cache.GetExp(uuid)
             addCache(uuid, data, exp.UnixNano())
         }
     }
@@ -94,7 +94,7 @@ func parseCache() {
         if exp.After(exp) {
             continue
         }
-        cache.UUID.Set(uuid, data, time.Until(exp))
+        cache.Set(uuid, data, time.Until(exp))
     }
 
     // Clear the table

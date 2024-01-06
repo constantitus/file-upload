@@ -13,14 +13,14 @@ type Data struct {
     Rank bool
 }
 
-var UUID cache.Cache[string, Data]
+var uuid cache.Cache[string, Data]
 
 func init() {
-    UUID = cache.NewCache[string, Data]()
+    uuid = cache.NewCache[string, Data]()
     go func() {
         for {
             time.Sleep(time.Minute * 1)
-            UUID.DeleteExpired()
+            uuid.DeleteExpired()
         }
     }()
 }
@@ -36,7 +36,28 @@ func RemoveEntry(r *http.Request) {
         return
     }
 
-    UUID.Set(uuidString, Data{}, time.Duration(1))
+    uuid.Set(uuidString, Data{}, time.Duration(1))
     return
 }
 
+// Exposed methods in case I want to change the cache
+
+func Keys() []string {
+    return uuid.Keys()
+}
+
+func Get(key string) (Data, bool) {
+    return uuid.Get(key)
+}
+
+func GetExp(key string) (time.Time, bool) {
+    return uuid.GetExp(key)
+}
+
+func Set(key string, value Data, ttl time.Duration) {
+    uuid.Set(key, value, ttl)
+}
+
+func DeleteExpired() {
+    uuid.DeleteExpired()
+}

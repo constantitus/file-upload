@@ -12,7 +12,7 @@ func OptionsHandler(w http.ResponseWriter, r *http.Request) {
     // handle the file download
     if r.Method == "GET" {
         query := r.URL.Query()
-        user, got := cache.UUID.Get(query.Get("uuid"))
+        user, got := cache.Get(query.Get("uuid"))
         file := query.Get("download")
         if !got || file == "" { return }
         w.Header().Set("Content-Disposition", "attachment; filename=" + file)

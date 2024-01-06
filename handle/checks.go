@@ -38,7 +38,7 @@ func setUser(form *loginData) (cookie *http.Cookie) {
     } else {
         ttl = config.UuidDefTTL
     }
-    cache.UUID.Set(id, cache.Data{Name: form.Username, Rank: form.admin}, ttl)
+    cache.Set(id, cache.Data{Name: form.Username, Rank: form.admin}, ttl)
     expires = time.Now().Add(ttl)
     
     cookie = &http.Cookie{
@@ -72,7 +72,7 @@ func fromCookie(r *http.Request) (user cache.Data) {
         return
     }
 
-    value, got := cache.UUID.Get(uuidString)
+    value, got := cache.Get(uuidString)
     if got {
         return value
     }
