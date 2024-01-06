@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"database/sql"
@@ -6,20 +6,23 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+
+    "main/config"
+    "main/cache"
 )
 
-var Database *sql.DB
+var database *sql.DB
 
 // Initialize the database
-func InitDB() {
+func Initialize() {
     var err error
-    Database, err = sql.Open("sqlite3", Config.DatabasePath)
+    database, err = sql.Open("sqlite3", config.DatabasePath)
     if err != nil {
         log.Panic(err)
     }
 
     // users table
-    statement, err := Database.Prepare( `CREATE TABLE IF NOT EXISTS users` +
+    statement, err := database.Prepare( `CREATE TABLE IF NOT EXISTS users` +
         `(username TEXT PRIMARY KEY, password TEXT, rank INTEGER DEFAULT 0)`)
     if err != nil {
         log.Panic(err)
@@ -27,17 +30,19 @@ func InitDB() {
     statement.Exec()
 
     // cache table
-    statement, err = Database.Prepare( `CREATE TABLE IF NOT EXISTS cache` +
+    statement, err = database.Prepare( `CREATE TABLE IF NOT EXISTS cache` +
         `(uuid TEXT PRIMARY KEY, user TEXT, rank INTEGER, expire INTEGER)`)
     if err != nil {
         log.Panic(err)
     }
     statement.Exec()
+
+    parseCache()
 }
 
 // Query the database for username
-func QueryDB(username string) (hash string, admin bool) {
-    rows, _ := Database.Query(
+func Query(username string) (hash string, admin bool) {
+    rows, _ := database.Query(
         `SELECT password, rank FROM users WHERE username = ?`, username)
     defer rows.Close()
 
@@ -48,19 +53,19 @@ func QueryDB(username string) (hash string, admin bool) {
 }
 
 
-func StoreCacheDB() {
-    UUID.DeleteExpired()
-    for _, uuid := range UUID.Keys() {
-        data, got := UUID.Get(uuid)
+func StoreCache() {
+    cache.UUID.DeleteExpired()
+    for _, uuid := range cache.UUID.Keys() {
+        data, got := cache.UUID.Get(uuid)
         if got {
-            exp, _ := UUID.GetExp(uuid)
-            addCacheDB(uuid, data, exp.UnixNano())
+            exp, _ := cache.UUID.GetExp(uuid)
+            addCache(uuid, data, exp.UnixNano())
         }
     }
 }
 
-func addCacheDB(uuid string, data UserData, exp int64) {
-    _, err := Database.Exec("INSERT INTO cache VALUES (?,?,?,?)",
+func addCache(uuid string, data cache.Data, exp int64) {
+    _, err := database.Exec("INSERT INTO cache VALUES (?,?,?,?)",
         uuid, data.Name, data.Rank, int(exp))
     if err != nil {
         log.Println(err)
@@ -68,20 +73,20 @@ func addCacheDB(uuid string, data UserData, exp int64) {
 }
 
 
-func ParseCacheDB() {
+func parseCache() {
     // Clear old entries
-    _, err := Database.Exec("DELETE FROM cache WHERE expire < ?",
+    _, err := database.Exec("DELETE FROM cache WHERE expire < ?",
         time.Now().UnixNano())
     if err != nil {
         log.Println(err)
     }
 
     // Read the cache table
-    rows, _ := Database.Query("SELECT * FROM cache")
+    rows, _ := database.Query("SELECT * FROM cache")
     defer rows.Close()
 
     for rows.Next() {
-        var data UserData
+        var data cache.Data
         var uuid string
         var tmp int64
         rows.Scan(&uuid, &data.Name, &data.Rank, &tmp)
@@ -89,11 +94,11 @@ func ParseCacheDB() {
         if exp.After(exp) {
             continue
         }
-        UUID.Set(uuid, data, time.Until(exp))
+        cache.UUID.Set(uuid, data, time.Until(exp))
     }
 
     // Clear the table
-    _, err = Database.Exec("DELETE FROM cache")
+    _, err = database.Exec("DELETE FROM cache")
     if err != nil {
         log.Println(err)
     }

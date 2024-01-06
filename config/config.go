@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"log"
@@ -10,33 +10,19 @@ import (
 	"golang.org/x/time/rate"
 )
 
-const ConfigFile = "config.toml"
+const configFile = "config.toml"
 
-var(
-    Config = struct{
-        StoragePath string
-        DatabasePath string
-        UuidDefTTL time.Duration
-        UuidLongTTL time.Duration
-        LoginCooldown time.Duration
-        LoginAttempts int
-        Rate rate.Limit
-        RateBursts int
-        RateCooldown time.Duration
-        FilesizeMax int64
-    }{ // defaults
-        "./",
-        "./database.db",
-        time.Duration(2),
-        time.Duration(24),
-        time.Duration(5),
-        4,
-        2,
-        4,
-        time.Duration(1),
-        int64(50000),
-    }
-    Style []byte
+var (
+    StoragePath = "./"
+    DatabasePath = "./database.db"
+    UuidDefTTL = time.Duration(2)
+    UuidLongTTL = time.Duration(24)
+    LoginCooldown = time.Duration(5)
+    LoginAttempts = 4
+    Rate = rate.Limit(2)
+    RateBursts = 4
+    RateCooldown = time.Duration(1)
+    FilesizeMax = int64(50000)
 )
 
 func init() {
@@ -58,26 +44,26 @@ func ParseConfig() {
         Rate_cooldown any
         Filesize_max any
     }{}
-    _, err := toml.DecodeFile(ConfigFile, &settings)
+    _, err := toml.DecodeFile(configFile, &settings)
     if err != nil {
         log.Println(err)
         return
     }
 
     if settings.Storage_path == "" {
-        Config.StoragePath = "./" 
+        StoragePath = "./" 
     } else {
-        Config.StoragePath = settings.Storage_path
+        StoragePath = settings.Storage_path
     }
-    Config.DatabasePath = settings.Database_path
-    Config.UuidDefTTL = parseTime(settings.UUID_def_ttl)
-    Config.UuidLongTTL = parseTime(settings.UUID_long_ttl)
-    Config.LoginCooldown = parseTime(settings.Login_cooldown)
-    Config.LoginAttempts = settings.Login_attempts
-    Config.Rate = rate.Limit(settings.Rate)
-    Config.RateBursts = settings.Rate_bursts
-    Config.RateCooldown = parseTime(settings.Rate_cooldown)
-    Config.FilesizeMax = sizeAtoi(settings.Filesize_max)
+    DatabasePath = settings.Database_path
+    UuidDefTTL = parseTime(settings.UUID_def_ttl)
+    UuidLongTTL = parseTime(settings.UUID_long_ttl)
+    LoginCooldown = parseTime(settings.Login_cooldown)
+    LoginAttempts = settings.Login_attempts
+    Rate = rate.Limit(settings.Rate)
+    RateBursts = settings.Rate_bursts
+    RateCooldown = parseTime(settings.Rate_cooldown)
+    FilesizeMax = sizeAtoi(settings.Filesize_max)
 }
 
 func sizeAtoi(in any) int64 {

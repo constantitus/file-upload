@@ -1,4 +1,4 @@
-package main
+package limits
 
 import (
 	"net"
@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"golang.org/x/time/rate"
+
+    "main/config"
 )
 
 
@@ -48,6 +50,7 @@ var RateLimiter = struct{
     clients map[string]*client
 }{}
 var limiter = rate.NewLimiter(100, 200)
+
 // Global and per-ip rate limits
 // Individual IP's can try up to rate times per second with a token bucket
 // of size rate_bursts and a cooldown of rate_cooldown
@@ -72,11 +75,11 @@ func RateLimit(next func(writer http.ResponseWriter, request *http.Request)) htt
         RateLimiter.mu.Lock()
         if _, found := RateLimiter.clients[ip]; !found {
             RateLimiter.clients[ip] = &client{
-                limiter: rate.NewLimiter(Config.Rate, Config.RateBursts)}
+                limiter: rate.NewLimiter(config.Rate, config.RateBursts)}
         }
         RateLimiter.clients[ip].lastSeen = time.Now()
         if !RateLimiter.clients[ip].limiter.Allow() {
-            time.Sleep(Config.RateCooldown)
+            time.Sleep(config.RateCooldown)
         }
         RateLimiter.mu.Unlock()
         next(w, r)
@@ -92,6 +95,7 @@ var logLimiter = struct{
     mu sync.Mutex
     clients map[string]*logClient
 }{}
+
 // Per-ip login limiter. Sets a cooldown of login_cooldown every
 // login_attempts -failed- attempts.
 //
@@ -105,9 +109,9 @@ func CheckLimit(ip string) bool {
         logLimiter.mu.Unlock()
         return true
     }
-    if time.Since(client.lastSeen) < Config.LoginCooldown {
+    if time.Since(client.lastSeen) < config.LoginCooldown {
         client.attempts += 1
-        if client.attempts >= Config.LoginAttempts {
+        if client.attempts >= config.LoginAttempts {
             logLimiter.mu.Unlock()
             return false
         }

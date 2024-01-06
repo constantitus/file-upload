@@ -1,4 +1,4 @@
-package main
+package handle
 
 import (
 	"fmt"
@@ -9,10 +9,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+    "main/config"
 )
 
-
-func HandleFiles(form *UploadData, headers []*multipart.FileHeader) {
+// parses the files to be uploaded by the user
+func parseUpload(form *uploadData, headers []*multipart.FileHeader) {
     // Parse files
     for _, header := range headers {
         filename := header.Filename
@@ -22,16 +24,16 @@ func HandleFiles(form *UploadData, headers []*multipart.FileHeader) {
             continue
         }
 
-        if header.Size > Config.FilesizeMax {
+        if header.Size > config.FilesizeMax {
             form.Messages = append(form.Messages, "file too large: " + filename)
             continue
         }
 
         // this is in case the user doesn't have a dir yet
-        os.MkdirAll(Config.StoragePath + "/" + form.User, os.ModePerm)
+        os.MkdirAll(config.StoragePath + "/" + form.User, os.ModePerm)
 
         out, err := os.OpenFile(
-            Config.StoragePath + "/" + form.User + "/" + filename,
+            config.StoragePath +  form.User + "/" + filename,
             os.O_RDWR|os.O_CREATE,
             0644)
         defer out.Close()
@@ -68,6 +70,7 @@ func HandleFiles(form *UploadData, headers []*multipart.FileHeader) {
             form.Messages, "File already exists: " + filename)
     }
 }
+
 // The actual reading and writing
 func storeFile(header *multipart.FileHeader, out os.File) (int64, error) {
     file, err := header.Open()
@@ -84,14 +87,15 @@ func storeFile(header *multipart.FileHeader, out os.File) (int64, error) {
 }
 
 
-type DirEntry struct {
+type dirEntry struct {
     Name string
     Size string
     Date string
 }
-func ReadUserDir(username string) []DirEntry {
-    var entries []DirEntry
-    dir, err := os.ReadDir(Config.StoragePath + "/" + username)
+// Returns the files in the user directory
+func readUserDir(username string) []dirEntry {
+    var entries []dirEntry
+    dir, err := os.ReadDir(config.StoragePath + "/" + username)
     if err != nil {
         log.Println(err.Error())
         return entries
@@ -105,7 +109,7 @@ func ReadUserDir(username string) []DirEntry {
             continue
         }
 
-        entries = append(entries, DirEntry{
+        entries = append(entries, dirEntry{
             Name: entry.Name(),
             Size: sizeItoa(info.Size()),
             Date: parseDate(info.ModTime()),
@@ -113,6 +117,7 @@ func ReadUserDir(username string) []DirEntry {
     }
     return entries
 }
+
 
 func sizeItoa(size int64) (out string) {
     in := int(size)
@@ -150,7 +155,7 @@ func parseDate(d time.Time) string {
 }
 
 
-func TryRename(user string, old string, newname string) (bool, string) {
+func tryRename(user string, old string, newname string) (bool, string) {
     if sanitize(old) {
         return false, `Illegal character`
     }
@@ -159,8 +164,8 @@ func TryRename(user string, old string, newname string) (bool, string) {
     }
 
     err := os.Rename(
-        Config.StoragePath + "/" + user + "/" + old,
-        Config.StoragePath + "/" + user + "/" + newname,
+        config.StoragePath + "/" + user + "/" + old,
+        config.StoragePath + "/" + user + "/" + newname,
         )
     if err != nil {
         return false, "Internal Error"
@@ -168,12 +173,12 @@ func TryRename(user string, old string, newname string) (bool, string) {
     return true, "renamed " + old + " to " + newname
 }
 
-func TryRemove(user string, filename string) (bool, string) {
+func tryRemove(user string, filename string) (bool, string) {
     if sanitize(filename) {
         return false, "Illegal Character"
     }
 
-    err := os.Remove( Config.StoragePath + "/" + user + "/" + filename,)
+    err := os.Remove( config.StoragePath + "/" + user + "/" + filename,)
     if err != nil {
         return false, "Internal Error"
     }

@@ -7,6 +7,9 @@ import (
 	"os/signal"
 	"strconv"
 	"syscall"
+    "main/db"
+    "main/limits"
+    "main/handle"
 )
 
 func main() {
@@ -15,7 +18,7 @@ func main() {
     go func () {
         <-c
         log.Println("Saving cache...")
-        StoreCacheDB()
+        db.StoreCache()
         os.Exit(0)
     }()
 
@@ -27,15 +30,15 @@ func main() {
         }
     }
 
-    InitDB() // run after the config has been parsed
-    ParseCacheDB()
+    db.Initialize() // run after the config has been parsed
 
     log.Println("Server running on port " + port)
     mux := http.NewServeMux()
-    mux.Handle("/",         RateLimit(MainHandler))
-    mux.Handle("/upload",  RateLimit(UploadHandler))
-    mux.Handle("/login",   RateLimit(LoginHandler))
-    mux.Handle("/files",   RateLimit(FileHandler))
+    mux.Handle("/",         limits.RateLimit(handle.IndexHandler))
+    mux.Handle("/upload",   limits.RateLimit(handle.UploadHandler))
+    mux.Handle("/login",    limits.RateLimit(handle.LoginHandler))
+    mux.Handle("/files",    limits.RateLimit(handle.OptionsHandler))
+
     // serve static files
     mux.Handle("/static/",
         http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
