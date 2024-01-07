@@ -6,7 +6,7 @@ body {
     color: rgb(232, 234, 237);
     padding: 0;
     margin: 0;
-    background-image: linear-gradient(to right bottom, rgb(30, 30, 30), rgb(20, 20, 20));
+    background: rgb(20, 20, 20);
 }
 
 p, b, a {
@@ -34,15 +34,7 @@ a, a:hover, a:visited, a:active {
 
 .box {
     overflow: hidden;
-    border: 1px solid;
-    border-style: solid;
-    border-radius: 0.4rem;
     color: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(6px);
-    background-image: linear-gradient(to right bottom,
-        rgba(10, 10, 10, 0.2),
-        rgba(10, 10, 10, 0.3)
-        );
 }
 
 .small-box {
@@ -118,7 +110,7 @@ a, a:hover, a:visited, a:active {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #8a85ab;
+    background-color: rgba(255,255,255,0.02);
     color: white;
 }
 
