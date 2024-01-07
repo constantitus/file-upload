@@ -52,27 +52,6 @@ func Query(username string) (hash string, admin bool) {
     return
 }
 
-
-func StoreCache() {
-    cache.DeleteExpired()
-    for _, uuid := range cache.Keys() {
-        data, got := cache.Get(uuid)
-        if got {
-            exp, _ := cache.GetExp(uuid)
-            addCache(uuid, data, exp.UnixNano())
-        }
-    }
-}
-
-func addCache(uuid string, data cache.Data, exp int64) {
-    _, err := database.Exec("INSERT INTO cache VALUES (?,?,?,?)",
-        uuid, data.Name, data.Rank, int(exp))
-    if err != nil {
-        log.Println(err)
-    }
-}
-
-
 func parseCache() {
     // Clear old entries
     _, err := database.Exec("DELETE FROM cache WHERE expire < ?",
@@ -96,9 +75,28 @@ func parseCache() {
         }
         cache.Set(uuid, data, time.Until(exp))
     }
+}
 
+func StoreCache() {
     // Clear the table
-    _, err = database.Exec("DELETE FROM cache")
+    _, err := database.Exec("DELETE FROM cache")
+    if err != nil {
+        log.Println(err)
+    }
+
+    cache.DeleteExpired()
+    for _, uuid := range cache.Keys() {
+        data, got := cache.Get(uuid)
+        if got {
+            exp, _ := cache.GetExp(uuid)
+            addCache(uuid, data, exp.UnixNano())
+        }
+    }
+}
+
+func addCache(uuid string, data cache.Data, exp int64) {
+    _, err := database.Exec("INSERT INTO cache VALUES (?,?,?,?)",
+        uuid, data.Name, data.Rank, int(exp))
     if err != nil {
         log.Println(err)
     }
