@@ -30,7 +30,10 @@ func main() {
         }
     }
 
-    db.Initialize() // run after the config has been parsed
+    err := db.Initialize() // run after the config has been parsed
+    if err != nil {
+        log.Fatal(err)
+    }
 
     log.Println("Server running on port " + port)
     mux := http.NewServeMux()

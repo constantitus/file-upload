@@ -14,18 +14,18 @@ import (
 var database *sql.DB
 
 // Initialize the database
-func Initialize() {
+func Initialize() error {
     var err error
     database, err = sql.Open("sqlite3", config.DatabasePath)
     if err != nil {
-        log.Panic(err)
+        return err
     }
 
     // users table
     statement, err := database.Prepare( `CREATE TABLE IF NOT EXISTS users` +
         `(username TEXT PRIMARY KEY, password TEXT, rank INTEGER DEFAULT 0)`)
     if err != nil {
-        log.Panic(err)
+        return err
     }
     statement.Exec()
 
@@ -33,11 +33,12 @@ func Initialize() {
     statement, err = database.Prepare( `CREATE TABLE IF NOT EXISTS cache` +
         `(uuid TEXT PRIMARY KEY, user TEXT, rank INTEGER, expire INTEGER)`)
     if err != nil {
-        log.Panic(err)
+        return err
     }
     statement.Exec()
 
     parseCache()
+    return nil
 }
 
 // Query the database for username
