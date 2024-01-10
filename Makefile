@@ -1,13 +1,13 @@
 build/upload: 			*/*.go
-	@go build -o build/upload ./cmd/main.go
+	@go build -o build/upload main/cmd
 
 
 run:					build/upload
 	@build/upload
 
 
-db-cli: 				cmd/db-cli/*.go db/*.go
-	@go build -o build/db-cli ./cmd/db-cli/main.go
+dbcli: 				cmd/dbcli/*.go db/*.go
+	@go build -o build/dbcli main/cmd/dbcli
 
 
 test-db: 				build/test-db
