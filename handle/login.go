@@ -16,7 +16,7 @@ type loginData struct {
     Files []dirEntry
 }
 // /login/
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
         return
     }

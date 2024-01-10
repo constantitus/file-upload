@@ -37,10 +37,10 @@ func main() {
 
     log.Println("Server running on port " + port)
     mux := http.NewServeMux()
-    mux.Handle("/",         limits.RateLimit(handle.IndexHandler))
-    mux.Handle("/upload",   limits.RateLimit(handle.UploadHandler))
-    mux.Handle("/login",    limits.RateLimit(handle.LoginHandler))
-    mux.Handle("/files",    limits.RateLimit(handle.OptionsHandler))
+    mux.Handle("/",         limits.RateLimit(handle.Index))
+    mux.Handle("/upload",   limits.RateLimit(handle.Upload))
+    mux.Handle("/login",    limits.RateLimit(handle.Login))
+    mux.Handle("/content",  limits.RateLimit(handle.Content))
 
     // serve static files
     mux.Handle("/static/",

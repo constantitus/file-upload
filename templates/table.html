@@ -24,7 +24,7 @@
     <td class="td-title">
         <form style="margin:0"
             id="download"
-            hx-post="/files"
+            hx-post="/content"
             hx-target="#extra"
             hx-swap="innerHTML"
         >
@@ -38,7 +38,7 @@
     <td class="td-buttons">
         <form
             id="delete"
-            hx-post="/files"
+            hx-post="/content"
             hx-target="#extra"
             hx-swap="innerHTML"
         >
@@ -48,7 +48,7 @@
         </form>
         <form
             id="rename"
-            hx-post="/files"
+            hx-post="/content"
             hx-target="#extra"
             hx-swap="innerHTML"
         >
@@ -66,13 +66,13 @@
     <button
         class="pop-close"
         hx-target="#extra"
-        hx-post="/files"
+        hx-post="/content"
         hx-trigger="click, keyup[key=='Escape'] from:body"
     ></button>
     <div class="box small-box">
         <form
             id="rename-form"
-            hx-post="/files"
+            hx-post="/content"
             hx-target="#extra"
         >
             <input type="hidden" name="option" value="rename" \>
@@ -87,7 +87,7 @@
             <button form="rename-form" class="button" id="submit">Rename</button>
             <button class="button"
                 hx-target="#extra"
-                hx-post="/files"
+                hx-post="/content"
             >cancel</button>
         </div>
         <div id="reply">
@@ -103,13 +103,13 @@
     <button
         class="pop-close"
         hx-target="#extra"
-        hx-post="/files"
+        hx-post="/content"
         hx-trigger="click, keyup[key=='Escape'] from:body"
     ></button>
     <div class="box small-box">
         <form
             id="delete-form"
-            hx-post="/files"
+            hx-post="/content"
             hx-target="#extra"
         >
             <input type="hidden" name="entry" value="{{.Name}}" />
@@ -123,13 +123,13 @@
             <button class="button"
                 id="submit"
                 form="delete-form"
-                hx-post="/files"
+                hx-post="/content"
                 autofocus
             >yes</button>
             <button class="button"
                 form="none"
                 hx-target="#extra"
-                hx-post="/files"
+                hx-post="/content"
             >cancel</button>
         </div>
         <div id="reply">

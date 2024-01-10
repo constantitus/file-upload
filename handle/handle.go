@@ -21,7 +21,7 @@ func init() {
 }
 
 // The root of the website
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
+func Index(w http.ResponseWriter, r *http.Request) {
     // TODO: Pass user data to upload template
     data := fromCookie(r)
     args := struct{

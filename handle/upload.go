@@ -10,7 +10,7 @@ type uploadData struct {
     Overwrite bool
 }
 // /upload/
-func UploadHandler(w http.ResponseWriter, r *http.Request) {
+func Upload(w http.ResponseWriter, r *http.Request) {
     if r.Header.Get("HX-Request") != "true" {
         return
     }

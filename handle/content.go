@@ -7,8 +7,8 @@ import (
 	"main/cache"
 	"main/config"
 )
-// /files/
-func OptionsHandler(w http.ResponseWriter, r *http.Request) {
+// /content/
+func Content(w http.ResponseWriter, r *http.Request) {
     // handle the file download
     if r.Method == "GET" {
         query := r.URL.Query()
@@ -49,7 +49,7 @@ func OptionsHandler(w http.ResponseWriter, r *http.Request) {
         }
         w.Header().Set(
             "HX-Redirect",
-            fmt.Sprintf("/files?uuid=%s&download=%s", uuid.Value, entry),
+            fmt.Sprintf("/content?download=%s&uuid=%s", entry, uuid.Value),
             )
         return
 
