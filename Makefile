@@ -10,15 +10,15 @@ dbcli: 				cmd/dbcli/*.go db/*.go
 	@go build -o build/dbcli main/cmd/dbcli
 
 
-test-db: 				build/test-db
+db_test: 				build/db_test
 	@build/test-db -test.v
 
-build/test-db: 			test/db_test.go
-	@go test -c ./test -o build/test-db
+build/db_test: 			test/db_test.go
+	@go test -c main/test -o build/db_test
 
 clean:
 	rm -rf build
 
-.PHONY: test-db run
+.PHONY: db_test run
 
 
