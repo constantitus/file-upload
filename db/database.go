@@ -15,9 +15,7 @@ var database *sql.DB
 
 // Initialize the database
 func Initialize() error {
-    var err error
-    database, err = sql.Open("sqlite3", config.DatabasePath)
-    if err != nil {
+    if err := Read(); err != nil {
         return err
     }
 
@@ -38,6 +36,15 @@ func Initialize() error {
     statement.Exec()
 
     parseCache()
+    return nil
+}
+
+func Read() error {
+    var err error
+    database, err = sql.Open("sqlite3", config.DatabasePath)
+    if err != nil {
+        return err
+    }
     return nil
 }
 
@@ -101,4 +108,36 @@ func addCache(uuid string, data cache.Data, exp int64) {
     if err != nil {
         log.Println(err)
     }
+}
+
+func AddUser(username string, hash string, rank bool) error {
+    _, err := database.Exec("INSERT INTO users VALUES (?,?,?)",
+        username, hash, rank)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
+func RemoveUser(username string) error {
+    _, err := database.Exec("DELETE FROM users WHERE username = (?)", username)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
+
+func QueryAll() (result []struct{user string; rank bool}) {
+    rows, _ := database.Query(
+        `SELECT username, rank FROM users`)
+    defer rows.Close()
+
+    for i := 0; rows.Next(); i++ {
+        result = append(result, struct{user string; rank bool}{})
+        rows.Scan(&result[i].user, &result[i].rank)
+    }
+    return
 }
