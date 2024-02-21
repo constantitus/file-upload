@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-    "github.com/go-pkgz/expirable-cache/v2"
+    "github.com/go-pkgz/expirable-cache/v3"
 )
 
 type Data struct {
@@ -51,7 +51,7 @@ func Get(key string) (Data, bool) {
 }
 
 func GetExp(key string) (time.Time, bool) {
-    return uuid.GetExp(key)
+    return uuid.GetExpiration(key)
 }
 
 func Set(key string, value Data, ttl time.Duration) {
